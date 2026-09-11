@@ -3,3 +3,5 @@ feeds_worker.json
 .DS_Store
 hourly.log
 .build.lock
+world-atlas-50m.json
+build-*.log

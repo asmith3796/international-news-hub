@@ -9,8 +9,9 @@ trap 'rmdir .build.lock 2>/dev/null' EXIT
 export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
 echo "$(date '+%F %T') build start"
 git pull -q --rebase origin main 2>/dev/null || echo "$(date '+%F %T') pull failed (continuing)"
+/usr/bin/python3 finance.py || echo "$(date '+%F %T') finance.py exited $?"
 /usr/bin/python3 build.py || echo "$(date '+%F %T') build.py exited $?"
-git add -A site/data summaries.json >/dev/null 2>&1
+git add -A site summaries.json >/dev/null 2>&1
 if git commit -qm "hourly build $(date -u '+%Y-%m-%dT%H:%MZ')" 2>/dev/null; then
   git push -q origin main && echo "$(date '+%F %T') pushed" || echo "$(date '+%F %T') push failed"
 else
