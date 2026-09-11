@@ -3,7 +3,7 @@ Pulls each country's outlets by RSS. Publishes, per story: the headline (transla
 written by Claude from the feed's headline and excerpt, the outlet's name, and a link to the original. The feed excerpt itself is never
 published (his ruling 9/11 16:17: rewrite, do not excerpt). Summaries are cached per story (summaries.json) so each story is written once.
 Run hourly (hourly.sh under launchd) or by hand: python3 build.py [--countries US,FR] [--no-translate]."""
-import feedparser, json, os, re, sys, time, hashlib, html, datetime, concurrent.futures
+import feedparser, json, os, re, sys, time, calendar, hashlib, html, datetime, concurrent.futures
 from html.parser import HTMLParser
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -36,7 +36,7 @@ def fetch_feed(outlet, url, lang, country):
             if excerpt.lower().startswith(title.lower()): excerpt = excerpt[len(title):].lstrip(" .:-–")
             excerpt = excerpt[:EXCERPT_CHARS]
             ts = e.get("published_parsed") or e.get("updated_parsed")
-            when = int(time.mktime(ts)) if ts else None
+            when = int(calendar.timegm(ts)) if ts else None      # feed times are UTC; mktime would shift them by the local offset (seen 9/11: every story "1 min ago")
             link = e.get("link") or ""
             if not link: continue
             out.append({"id": key(title, excerpt), "title": title, "excerpt": excerpt, "link": link, "outlet": outlet,
