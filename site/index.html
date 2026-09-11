@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>International News Hub</title>
+<meta name="description" content="One country's news at a time, from its own press, in your language.">
+<style>
+  :root { --bg:#0f1115; --card:#171a21; --line:#262b35; --text:#e8eaf0; --muted:#9aa3b2; --accent:#4ea1ff; }
+  @media (prefers-color-scheme: light) { :root { --bg:#f6f7f9; --card:#fff; --line:#e3e6eb; --text:#141821; --muted:#5d6675; --accent:#0b6bd8; } }
+  * { box-sizing:border-box } body { margin:0; background:var(--bg); color:var(--text); font:16px/1.45 -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  header { position:sticky; top:0; z-index:5; background:var(--bg); border-bottom:1px solid var(--line); padding:10px 14px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  header h1 { font-size:17px; margin:0 8px 0 0; letter-spacing:.2px } header h1 span { color:var(--muted); font-weight:400 }
+  select { background:var(--card); color:var(--text); border:1px solid var(--line); border-radius:8px; padding:8px 10px; font-size:15px; }
+  .countries { display:flex; gap:6px; overflow-x:auto; padding:10px 14px; border-bottom:1px solid var(--line); scrollbar-width:none } .countries::-webkit-scrollbar{display:none}
+  .countries button { flex:0 0 auto; background:var(--card); color:var(--text); border:1px solid var(--line); border-radius:999px; padding:6px 12px; font-size:14px; cursor:pointer }
+  .countries button.on { border-color:var(--accent); color:var(--accent) }
+  main { max-width:760px; margin:0 auto; padding:12px 14px 60px }
+  .meta { color:var(--muted); font-size:13px; margin:6px 0 12px }
+  article { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:14px; margin:0 0 10px }
+  article h2 { font-size:17px; margin:0 0 6px; line-height:1.3 } article h2 a { color:var(--text); text-decoration:none } article h2 a:hover { text-decoration:underline }
+  article p { margin:0 0 8px; color:var(--text); opacity:.9; font-size:15px }
+  .src { color:var(--muted); font-size:12.5px; display:flex; gap:8px; flex-wrap:wrap } .src .tag { border:1px solid var(--line); border-radius:6px; padding:0 6px }
+  .orig { color:var(--muted); font-size:12.5px; margin-top:6px } .orig summary { cursor:pointer }
+  [dir=rtl] article, [dir=rtl] .meta { text-align:right }
+  footer { color:var(--muted); font-size:12.5px; text-align:center; padding:20px }
+</style>
+</head>
+<body>
+<header>
+  <h1>International News Hub <span>· one country at a time</span></h1>
+  <select id="lang" aria-label="Language"></select>
+</header>
+<nav class="countries" id="countries"></nav>
+<main>
+  <div class="meta" id="meta"></div>
+  <div id="stories"></div>
+</main>
+<footer>Headlines and first paragraphs from each country's own outlets, linked to the original. Translations are by machine; open the original when it matters.</footer>
+<script>
+const RTL = new Set(["ar","he","fa"]);
+const state = { lang: localStorage.getItem("inh.lang") || (navigator.language||"en").slice(0,2), country: localStorage.getItem("inh.country") || "US", index: null };
+async function j(u){ const r = await fetch(u + "?t=" + Math.floor(Date.now()/600000)); return r.json(); }
+function rel(t){ const s=(Date.now()/1000-t); if(s<3600) return Math.max(1,Math.round(s/60))+" min ago"; if(s<86400) return Math.round(s/3600)+" h ago"; return Math.round(s/86400)+" d ago"; }
+async function init(){
+  state.index = await j("data/index.json");
+  if(!(state.lang in state.index.languages)) state.lang = "en";
+  const L = document.getElementById("lang");
+  for(const [c,n] of Object.entries(state.index.languages)){ const o=document.createElement("option"); o.value=c; o.textContent=n; L.appendChild(o); }
+  L.value = state.lang; L.onchange = () => { state.lang = L.value; localStorage.setItem("inh.lang", state.lang); render(); };
+  const N = document.getElementById("countries");
+  if(!(state.country in state.index.countries)) state.country = Object.keys(state.index.countries)[0];
+  for(const [cc,c] of Object.entries(state.index.countries)){ const b=document.createElement("button"); b.textContent=(c.flag?c.flag+" ":"")+c.name; b.dataset.cc=cc; b.onclick=()=>{ state.country=cc; localStorage.setItem("inh.country",cc); render(); }; N.appendChild(b); }
+  render();
+}
+async function render(){
+  document.querySelectorAll(".countries button").forEach(b=>b.classList.toggle("on", b.dataset.cc===state.country));
+  document.body.dir = RTL.has(state.lang) ? "rtl" : "ltr";
+  const d = await j(`data/${state.country}.json`);
+  document.getElementById("meta").textContent = `${d.name} · ${d.stories.length} stories from ${new Set(d.stories.map(s=>s.outlet)).size} outlets · updated ${rel(d.updated)}`;
+  const S = document.getElementById("stories"); S.innerHTML = "";
+  for(const s of d.stories){
+    const tr = (s.tr && s.tr[state.lang]) || null; const t = tr || {title:s.title, summary:s.summary};
+    const translated = !!tr && state.lang !== s.lang;
+    const a = document.createElement("article");
+    a.innerHTML = `<h2><a href="${s.link}" target="_blank" rel="noopener">${esc(t.title)}</a></h2>` +
+      (t.summary ? `<p>${esc(t.summary)}</p>` : "") +
+      `<div class="src"><span>${esc(s.outlet)}</span><span>${rel(s.time)}</span>${translated ? `<span class="tag">machine translated from ${esc(s.lang)}</span>` : (state.lang!==s.lang ? `<span class="tag">original (${esc(s.lang)})</span>` : "")}</div>` +
+      (translated ? `<details class="orig"><summary>original</summary>${esc(s.title)}${s.summary ? " — " + esc(s.summary) : ""}</details>` : "");
+    S.appendChild(a);
+  }
+  window.scrollTo(0,0);
+}
+function esc(x){ return String(x).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+init();
+</script>
+</body>
+</html>

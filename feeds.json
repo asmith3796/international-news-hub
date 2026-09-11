@@ -1,0 +1,702 @@
+{
+ "US": {
+  "name": "United States",
+  "lang": "en",
+  "flag": "🇺🇸",
+  "feeds": [
+   {
+    "outlet": "NPR",
+    "url": "https://feeds.npr.org/1001/rss.xml",
+    "lang": "en"
+   },
+   {
+    "outlet": "The New York Times",
+    "url": "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml",
+    "lang": "en"
+   },
+   {
+    "outlet": "The Washington Post",
+    "url": "https://feeds.washingtonpost.com/rss/national",
+    "lang": "en"
+   },
+   {
+    "outlet": "CBS News",
+    "url": "https://www.cbsnews.com/latest/rss/main",
+    "lang": "en"
+   },
+   {
+    "outlet": "NBC News",
+    "url": "https://feeds.nbcnews.com/nbcnews/public/news",
+    "lang": "en"
+   },
+   {
+    "outlet": "ABC News",
+    "url": "https://abcnews.go.com/abcnews/topstories",
+    "lang": "en"
+   }
+  ]
+ },
+ "CA": {
+  "name": "Canada",
+  "lang": "en",
+  "flag": "🇨🇦",
+  "feeds": [
+   {
+    "outlet": "CBC News",
+    "url": "https://www.cbc.ca/webfeed/rss/rss-topstories",
+    "lang": "en"
+   },
+   {
+    "outlet": "The Globe and Mail",
+    "url": "https://www.theglobeandmail.com/arc/outboundfeeds/rss/category/canada/",
+    "lang": "en"
+   },
+   {
+    "outlet": "Toronto Star",
+    "url": "https://www.thestar.com/search/?f=rss",
+    "lang": "en"
+   },
+   {
+    "outlet": "Global News",
+    "url": "https://globalnews.ca/feed/",
+    "lang": "en"
+   },
+   {
+    "outlet": "National Post",
+    "url": "https://nationalpost.com/feed",
+    "lang": "en"
+   }
+  ]
+ },
+ "MX": {
+  "name": "Mexico",
+  "lang": "es",
+  "flag": "🇲🇽",
+  "feeds": [
+   {
+    "outlet": "El Universal",
+    "url": "https://www.eluniversal.com.mx/arc/outboundfeeds/rss/",
+    "lang": "es"
+   },
+   {
+    "outlet": "La Jornada",
+    "url": "https://www.jornada.com.mx/rss/edicion.xml",
+    "lang": "es"
+   },
+   {
+    "outlet": "Reforma",
+    "url": "https://www.reforma.com/rss/portada.xml",
+    "lang": "es"
+   },
+   {
+    "outlet": "Excélsior",
+    "url": "https://www.excelsior.com.mx/rss",
+    "lang": "es"
+   },
+   {
+    "outlet": "Mexico News Daily",
+    "url": "https://mexiconewsdaily.com/feed/",
+    "lang": "en"
+   },
+   {
+    "outlet": "El Economista",
+    "url": "https://www.eleconomista.com.mx/rss/ultimas-noticias",
+    "lang": "es"
+   }
+  ]
+ },
+ "BR": {
+  "name": "Brazil",
+  "lang": "pt",
+  "flag": "🇧🇷",
+  "feeds": [
+   {
+    "outlet": "Folha de S.Paulo",
+    "url": "https://feeds.folha.uol.com.br/emcimadahora/rss091.xml",
+    "lang": "pt"
+   },
+   {
+    "outlet": "G1 (Globo)",
+    "url": "https://g1.globo.com/rss/g1/",
+    "lang": "pt"
+   },
+   {
+    "outlet": "Estadão",
+    "url": "https://www.estadao.com.br/arc/outboundfeeds/rss/?outputType=xml",
+    "lang": "pt"
+   },
+   {
+    "outlet": "UOL Notícias",
+    "url": "https://rss.uol.com.br/feed/noticias.xml",
+    "lang": "pt"
+   },
+   {
+    "outlet": "Agência Brasil",
+    "url": "https://agenciabrasil.ebc.com.br/rss/ultimasnoticias/feed.xml",
+    "lang": "pt"
+   },
+   {
+    "outlet": "The Rio Times",
+    "url": "https://www.riotimesonline.com/feed/",
+    "lang": "en"
+   }
+  ]
+ },
+ "AR": {
+  "name": "Argentina",
+  "lang": "es",
+  "flag": "🇦🇷",
+  "feeds": [
+   {
+    "outlet": "Clarín",
+    "url": "https://www.clarin.com/rss/lo-ultimo/",
+    "lang": "es"
+   },
+   {
+    "outlet": "La Nación",
+    "url": "https://www.lanacion.com.ar/arc/outboundfeeds/rss/",
+    "lang": "es"
+   },
+   {
+    "outlet": "Infobae",
+    "url": "https://www.infobae.com/arc/outboundfeeds/rss/",
+    "lang": "es"
+   },
+   {
+    "outlet": "Perfil",
+    "url": "https://www.perfil.com/feed",
+    "lang": "es"
+   },
+   {
+    "outlet": "Buenos Aires Times",
+    "url": "https://www.batimes.com.ar/feed",
+    "lang": "en"
+   },
+   {
+    "outlet": "Buenos Aires Herald",
+    "url": "https://buenosairesherald.com/feed",
+    "lang": "en"
+   }
+  ]
+ },
+ "GB": {
+  "name": "United Kingdom",
+  "lang": "en",
+  "flag": "🇬🇧",
+  "feeds": [
+   {
+    "outlet": "BBC News",
+    "url": "https://feeds.bbci.co.uk/news/rss.xml",
+    "lang": "en"
+   },
+   {
+    "outlet": "The Guardian",
+    "url": "https://www.theguardian.com/uk/rss",
+    "lang": "en"
+   },
+   {
+    "outlet": "The Independent",
+    "url": "https://www.independent.co.uk/rss",
+    "lang": "en"
+   },
+   {
+    "outlet": "Sky News",
+    "url": "https://feeds.skynews.com/feeds/rss/home.xml",
+    "lang": "en"
+   },
+   {
+    "outlet": "Financial Times",
+    "url": "https://www.ft.com/rss/home",
+    "lang": "en"
+   }
+  ]
+ },
+ "FR": {
+  "name": "France",
+  "lang": "fr",
+  "flag": "🇫🇷",
+  "feeds": [
+   {
+    "outlet": "Le Monde",
+    "url": "https://www.lemonde.fr/rss/une.xml",
+    "lang": "fr"
+   },
+   {
+    "outlet": "Le Figaro",
+    "url": "https://www.lefigaro.fr/rss/figaro_actualites.xml",
+    "lang": "fr"
+   },
+   {
+    "outlet": "Libération",
+    "url": "https://www.liberation.fr/arc/outboundfeeds/rss/?outputType=xml",
+    "lang": "fr"
+   },
+   {
+    "outlet": "France Info",
+    "url": "https://www.francetvinfo.fr/titres.rss",
+    "lang": "fr"
+   },
+   {
+    "outlet": "France 24",
+    "url": "https://www.france24.com/fr/rss",
+    "lang": "fr"
+   },
+   {
+    "outlet": "RFI English",
+    "url": "https://www.rfi.fr/en/rss",
+    "lang": "en"
+   }
+  ]
+ },
+ "DE": {
+  "name": "Germany",
+  "lang": "de",
+  "flag": "🇩🇪",
+  "feeds": [
+   {
+    "outlet": "Der Spiegel",
+    "url": "https://www.spiegel.de/schlagzeilen/index.rss",
+    "lang": "de"
+   },
+   {
+    "outlet": "Die Zeit",
+    "url": "https://newsfeed.zeit.de/index",
+    "lang": "de"
+   },
+   {
+    "outlet": "Frankfurter Allgemeine Zeitung",
+    "url": "https://www.faz.net/rss/aktuell/",
+    "lang": "de"
+   },
+   {
+    "outlet": "Süddeutsche Zeitung",
+    "url": "https://rss.sueddeutsche.de/rss/Topthemen",
+    "lang": "de"
+   },
+   {
+    "outlet": "Tagesschau",
+    "url": "https://www.tagesschau.de/index~rss2.xml",
+    "lang": "de"
+   },
+   {
+    "outlet": "Deutsche Welle English",
+    "url": "https://rss.dw.com/rdf/rss-en-all",
+    "lang": "en"
+   }
+  ]
+ },
+ "IT": {
+  "name": "Italy",
+  "lang": "it",
+  "flag": "🇮🇹",
+  "feeds": [
+   {
+    "outlet": "La Repubblica",
+    "url": "https://www.repubblica.it/rss/homepage/rss2.0.xml",
+    "lang": "it"
+   },
+   {
+    "outlet": "Corriere della Sera",
+    "url": "https://www.corriere.it/dynamic-feed/rss/section/cronache.xml",
+    "lang": "it"
+   },
+   {
+    "outlet": "ANSA",
+    "url": "https://www.ansa.it/sito/notizie/topnews/topnews_rss.xml",
+    "lang": "it"
+   },
+   {
+    "outlet": "ANSA English",
+    "url": "https://www.ansa.it/english/english_rss.xml",
+    "lang": "en"
+   },
+   {
+    "outlet": "Rai News",
+    "url": "https://www.rainews.it/rss/tutti",
+    "lang": "it"
+   },
+   {
+    "outlet": "La Stampa",
+    "url": "https://www.lastampa.it/rss",
+    "lang": "it"
+   }
+  ]
+ },
+ "UA": {
+  "name": "Ukraine",
+  "lang": "uk",
+  "flag": "🇺🇦",
+  "feeds": [
+   {
+    "outlet": "Ukrainska Pravda",
+    "url": "https://www.pravda.com.ua/rss/",
+    "lang": "uk"
+   },
+   {
+    "outlet": "Ukrinform",
+    "url": "https://www.ukrinform.ua/rss/block-lastnews",
+    "lang": "uk"
+   },
+   {
+    "outlet": "UNIAN",
+    "url": "https://rss.unian.net/site/news_ukr.rss",
+    "lang": "uk"
+   },
+   {
+    "outlet": "RBC-Ukraine",
+    "url": "https://www.rbc.ua/static/rss/all.ukr.rss.xml",
+    "lang": "uk"
+   },
+   {
+    "outlet": "Interfax-Ukraine",
+    "url": "https://interfax.com.ua/news/last.rss",
+    "lang": "uk"
+   },
+   {
+    "outlet": "Kyiv Independent",
+    "url": "https://kyivindependent.com/news-archive/rss/",
+    "lang": "en"
+   }
+  ]
+ },
+ "RU": {
+  "name": "Russia",
+  "lang": "ru",
+  "flag": "🇷🇺",
+  "feeds": [
+   {
+    "outlet": "TASS",
+    "url": "https://tass.ru/rss/v2.xml",
+    "lang": "ru"
+   },
+   {
+    "outlet": "RIA Novosti",
+    "url": "https://ria.ru/export/rss2/archive/index.xml",
+    "lang": "ru"
+   },
+   {
+    "outlet": "Kommersant",
+    "url": "https://www.kommersant.ru/RSS/news.xml",
+    "lang": "ru"
+   },
+   {
+    "outlet": "Lenta.ru",
+    "url": "https://lenta.ru/rss/news",
+    "lang": "ru"
+   },
+   {
+    "outlet": "Meduza",
+    "url": "https://meduza.io/rss/all",
+    "lang": "ru"
+   },
+   {
+    "outlet": "The Moscow Times",
+    "url": "https://www.themoscowtimes.com/rss/news",
+    "lang": "en"
+   }
+  ]
+ },
+ "IL": {
+  "name": "Israel",
+  "lang": "he",
+  "flag": "🇮🇱",
+  "feeds": [
+   {
+    "outlet": "Ynet",
+    "url": "https://www.ynet.co.il/Integration/StoryRss2.xml",
+    "lang": "he"
+   },
+   {
+    "outlet": "Haaretz",
+    "url": "https://www.haaretz.co.il/srv/htz---all-articles",
+    "lang": "he"
+   },
+   {
+    "outlet": "Walla",
+    "url": "https://rss.walla.co.il/feed/1",
+    "lang": "he"
+   },
+   {
+    "outlet": "Times of Israel",
+    "url": "https://www.timesofisrael.com/feed/",
+    "lang": "en"
+   },
+   {
+    "outlet": "Jerusalem Post",
+    "url": "https://www.jpost.com/rss/rssfeedsfrontpage.aspx",
+    "lang": "en"
+   }
+  ]
+ },
+ "IR": {
+  "name": "Iran",
+  "lang": "fa",
+  "flag": "🇮🇷",
+  "feeds": [
+   {
+    "outlet": "ISNA",
+    "url": "https://www.isna.ir/rss",
+    "lang": "fa"
+   },
+   {
+    "outlet": "Mehr News Agency",
+    "url": "https://www.mehrnews.com/rss",
+    "lang": "fa"
+   },
+   {
+    "outlet": "Tehran Times",
+    "url": "https://www.tehrantimes.com/rss",
+    "lang": "en"
+   },
+   {
+    "outlet": "Iran International",
+    "url": "https://www.iranintl.com/feed",
+    "lang": "fa"
+   },
+   {
+    "outlet": "IranWire",
+    "url": "https://iranwire.com/en/feed/",
+    "lang": "en"
+   }
+  ]
+ },
+ "SA": {
+  "name": "Saudi Arabia",
+  "lang": "ar",
+  "flag": "🇸🇦",
+  "feeds": [
+   {
+    "outlet": "Okaz",
+    "url": "https://www.okaz.com.sa/rssFeed/0",
+    "lang": "ar"
+   },
+   {
+    "outlet": "Asharq Al-Awsat",
+    "url": "https://aawsat.com/feed",
+    "lang": "ar"
+   },
+   {
+    "outlet": "Asharq Al-Awsat English",
+    "url": "https://english.aawsat.com/feed",
+    "lang": "en"
+   },
+   {
+    "outlet": "Arab News",
+    "url": "https://www.arabnews.com/rss.xml",
+    "lang": "en"
+   },
+   {
+    "outlet": "Saudi Gazette",
+    "url": "https://saudigazette.com.sa/rssFeed/74",
+    "lang": "en"
+   }
+  ]
+ },
+ "EG": {
+  "name": "Egypt",
+  "lang": "ar",
+  "flag": "🇪🇬",
+  "feeds": [
+   {
+    "outlet": "Al-Masry Al-Youm",
+    "url": "https://www.almasryalyoum.com/rss/rssfeeds",
+    "lang": "ar"
+   },
+   {
+    "outlet": "Youm7",
+    "url": "https://www.youm7.com/rss/SectionRss?SectionID=65",
+    "lang": "ar"
+   },
+   {
+    "outlet": "Mada Masr",
+    "url": "https://www.madamasr.com/feed/",
+    "lang": "ar"
+   },
+   {
+    "outlet": "Egypt Independent",
+    "url": "https://egyptindependent.com/feed/",
+    "lang": "en"
+   },
+   {
+    "outlet": "Daily News Egypt",
+    "url": "https://www.dailynewsegypt.com/feed/",
+    "lang": "en"
+   }
+  ]
+ },
+ "NG": {
+  "name": "Nigeria",
+  "lang": "en",
+  "flag": "🇳🇬",
+  "feeds": [
+   {
+    "outlet": "Punch",
+    "url": "https://rss.punchng.com/v1/category/latest_news",
+    "lang": "en"
+   },
+   {
+    "outlet": "Vanguard",
+    "url": "https://www.vanguardngr.com/feed/",
+    "lang": "en"
+   },
+   {
+    "outlet": "Premium Times",
+    "url": "https://www.premiumtimesng.com/feed",
+    "lang": "en"
+   },
+   {
+    "outlet": "Channels TV",
+    "url": "https://www.channelstv.com/feed/",
+    "lang": "en"
+   },
+   {
+    "outlet": "Daily Trust",
+    "url": "https://dailytrust.com/feed/",
+    "lang": "en"
+   },
+   {
+    "outlet": "ThisDay",
+    "url": "https://www.thisdaylive.com/index.php/feed/",
+    "lang": "en"
+   }
+  ]
+ },
+ "IN": {
+  "name": "India",
+  "lang": "en",
+  "flag": "🇮🇳",
+  "feeds": [
+   {
+    "outlet": "The Hindu",
+    "url": "https://www.thehindu.com/news/national/feeder/default.rss",
+    "lang": "en"
+   },
+   {
+    "outlet": "Times of India",
+    "url": "https://timesofindia.indiatimes.com/rssfeedstopstories.cms",
+    "lang": "en"
+   },
+   {
+    "outlet": "Indian Express",
+    "url": "https://indianexpress.com/feed/",
+    "lang": "en"
+   },
+   {
+    "outlet": "NDTV",
+    "url": "https://feeds.feedburner.com/ndtvnews-top-stories",
+    "lang": "en"
+   },
+   {
+    "outlet": "NDTV India",
+    "url": "https://feeds.feedburner.com/ndtvkhabar-latest",
+    "lang": "hi"
+   },
+   {
+    "outlet": "Dainik Bhaskar",
+    "url": "https://www.bhaskar.com/rss-v1--category-1061.xml",
+    "lang": "hi"
+   }
+  ]
+ },
+ "CN": {
+  "name": "China",
+  "lang": "zh",
+  "flag": "🇨🇳",
+  "feeds": [
+   {
+    "outlet": "China News Service (中国新闻网)",
+    "url": "https://www.chinanews.com.cn/rss/scroll-news.xml",
+    "lang": "zh"
+   },
+   {
+    "outlet": "CGTN",
+    "url": "https://www.cgtn.com/subscribe/rss/section/china.xml",
+    "lang": "en"
+   },
+   {
+    "outlet": "Initium Media (端傳媒)",
+    "url": "https://theinitium.com/feed",
+    "lang": "zh"
+   },
+   {
+    "outlet": "South China Morning Post",
+    "url": "https://www.scmp.com/rss/91/feed",
+    "lang": "en"
+   }
+  ]
+ },
+ "JP": {
+  "name": "Japan",
+  "lang": "ja",
+  "flag": "🇯🇵",
+  "feeds": [
+   {
+    "outlet": "NHK",
+    "url": "https://www.nhk.or.jp/rss/news/cat0.xml",
+    "lang": "ja"
+   },
+   {
+    "outlet": "Asahi Shimbun",
+    "url": "https://www.asahi.com/rss/asahi/newsheadlines.rdf",
+    "lang": "ja"
+   },
+   {
+    "outlet": "Mainichi Shimbun",
+    "url": "https://mainichi.jp/rss/etc/mainichi-flash.rss",
+    "lang": "ja"
+   },
+   {
+    "outlet": "Sankei Shimbun",
+    "url": "https://www.sankei.com/arc/outboundfeeds/rss/?outputType=xml",
+    "lang": "ja"
+   },
+   {
+    "outlet": "Jiji Press",
+    "url": "https://www.jiji.com/rss/ranking.rdf",
+    "lang": "ja"
+   },
+   {
+    "outlet": "The Japan Times",
+    "url": "https://www.japantimes.co.jp/feed/",
+    "lang": "en"
+   }
+  ]
+ },
+ "KR": {
+  "name": "South Korea",
+  "lang": "ko",
+  "flag": "🇰🇷",
+  "feeds": [
+   {
+    "outlet": "Yonhap News (연합뉴스)",
+    "url": "https://www.yna.co.kr/rss/news.xml",
+    "lang": "ko"
+   },
+   {
+    "outlet": "Yonhap News Agency (English)",
+    "url": "https://en.yna.co.kr/RSS/news.xml",
+    "lang": "en"
+   },
+   {
+    "outlet": "Chosun Ilbo (조선일보)",
+    "url": "https://www.chosun.com/arc/outboundfeeds/rss/?outputType=xml",
+    "lang": "ko"
+   },
+   {
+    "outlet": "Dong-A Ilbo (동아일보)",
+    "url": "https://rss.donga.com/total.xml",
+    "lang": "ko"
+   },
+   {
+    "outlet": "The Korea Herald",
+    "url": "https://www.koreaherald.com/rss/newsAll",
+    "lang": "en"
+   },
+   {
+    "outlet": "KBS World",
+    "url": "http://world.kbs.co.kr/rss/rss_news.htm?lang=e",
+    "lang": "en"
+   }
+  ]
+ }
+}
