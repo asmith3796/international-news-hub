@@ -1,0 +1,35 @@
+20:24:33 US United States: 24 stories published of 24 fetched, 24 newly summarized
+20:24:51 feed failed CA CBC News: [Errno 60] Operation timed out
+20:26:14 CA Canada: 24 stories published of 24 fetched, 24 newly summarized
+20:26:14 empty feed MX Excélsior https://www.excelsior.com.mx/rss 
+20:27:23 MX Mexico: 24 stories published of 24 fetched, 24 newly summarized
+20:28:32 BR Brazil: 24 stories published of 24 fetched, 24 newly summarized
+20:30:17 summary failed f3ecbf524b141552: Expecting ',' delimiter: line 40 column 41 (char 3224)
+20:30:17 AR Argentina: 23 stories published of 24 fetched, 24 newly summarized
+20:31:58 summary failed d82156ebd00cd59f: Expecting ',' delimiter: line 40 column 22 (char 2731)
+20:32:10 GB United Kingdom: 23 stories published of 24 fetched, 24 newly summarized
+20:33:21 summary failed c8c690aaaff0b9eb: Expecting ',' delimiter: line 40 column 47 (char 3211)
+20:33:34 summary failed 853683f7de6eb488: Expecting ',' delimiter: line 40 column 29 (char 2734)
+20:33:34 FR France: 22 stories published of 24 fetched, 6 newly summarized
+20:34:25 summary failed 5b28dfa9d9c399cc: Expecting ',' delimiter: line 40 column 31 (char 3392)
+20:35:23 summary failed 207a797943f06e7b: Expecting ',' delimiter: line 4 column 60 (char 97)
+20:35:23 DE Germany: 22 stories published of 24 fetched, 24 newly summarized
+20:36:20 summary failed 21f5b5ae1a7a15ea: Expecting ',' delimiter: line 40 column 28 (char 2760)
+20:36:22 summary failed edae9bf014ec79da: Expecting ',' delimiter: line 40 column 27 (char 3724)
+20:36:58 summary failed a97bb1ee4c992530: Expecting ',' delimiter: line 40 column 28 (char 2727)
+20:37:25 IT Italy: 21 stories published of 24 fetched, 24 newly summarized
+20:38:29 UA Ukraine: 24 stories published of 24 fetched, 24 newly summarized
+20:39:22 RU Russia: 24 stories published of 24 fetched, 24 newly summarized
+20:40:39 summary failed abdf9987681a81c3: Expecting ',' delimiter: line 20 column 97 (char 1379)
+20:41:04 IL Israel: 23 stories published of 24 fetched, 24 newly summarized
+20:42:11 IR Iran: 24 stories published of 24 fetched, 24 newly summarized
+20:43:21 SA Saudi Arabia: 24 stories published of 24 fetched, 24 newly summarized
+20:45:16 EG Egypt: 24 stories published of 24 fetched, 24 newly summarized
+20:46:27 NG Nigeria: 24 stories published of 24 fetched, 24 newly summarized
+20:47:44 IN India: 24 stories published of 24 fetched, 24 newly summarized
+20:49:16 CN China: 24 stories published of 24 fetched, 24 newly summarized
+20:51:38 summary failed 69bb0789d588e93c: Expecting ',' delimiter: line 44 column 57 (char 3952)
+20:51:38 JP Japan: 23 stories published of 24 fetched, 24 newly summarized
+20:53:15 summary failed 969d2b4f3534ec33: Expecting ',' delimiter: line 4 column 105 (char 142)
+20:53:29 KR South Korea: 23 stories published of 24 fetched, 24 newly summarized
+20:53:29 done; tokens in 118534 out 785592 (about $4.05 at Haiku prices)
