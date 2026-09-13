@@ -123,7 +123,7 @@ def head(title, desc, depth=0):
             f'<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">'
             f'<link rel="stylesheet" href="{base}style.css"></head><body><div class="wrap">'
             f'<header class="top"><a class="brand" href="{base}./">International News Hub<small>one country at a time</small></a>'
-            f'<nav class="nav"><a href="{base}./">Countries</a><a href="{base}about.html">About</a></nav></header>')
+            f'<nav class="nav"><a href="{base}./">Countries</a><a href="{base}t/">Subjects</a><a href="{base}about.html">About</a></nav></header>')
 def topics_bar(counts, depth=0, current=None):
     base = "../" * depth
     on = ' class="on"'
@@ -135,42 +135,19 @@ def art(cc, c, topic, depth):
 def card(s, cc, c, now, depth, show_country=False):
     t = s["tr"].get("en") or {}; topic = group_of(s.get("topic"))
     where = f'<a class="cc" href="{"../" * depth}c/{cc}/">{c["flag"]} {esc(c["name"])}</a> · ' if show_country else ""
-    return (f'<article class="story" data-region="{esc(c["region"])}">{art(cc, c, topic, depth)}<div class="body"><h3><a href="{esc(s["link"])}" target="_blank" rel="noopener">{esc(t.get("title") or s["title"])}</a></h3>'
+    return (f'<article class="story">{art(cc, c, topic, depth)}<div class="body"><h3><a href="{esc(s["link"])}" target="_blank" rel="noopener">{esc(t.get("title") or s["title"])}</a></h3>'
             + (f'<p>{esc(t["summary"])}</p>' if t.get("summary") else "")
             + f'<div class="src">{where}<a class="tp" href="{"../" * depth}t/{topic}/">{esc(GROUPS[topic])}</a> · Source: {esc(s["outlet"])} · <a href="{esc(s["link"])}" target="_blank" rel="noopener">read the original</a>' + (f' · {rel(s["time"], now)}' if s.get("dated") else "") + '</div></div></article>')
-FILTER_JS = ('<script>(function(){var b=document.querySelectorAll(".filters a");b.forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();'
-             'b.forEach(function(x){x.classList.remove("on")});a.classList.add("on");var r=a.getAttribute("data-r");'
-             'document.querySelectorAll("[data-region]").forEach(function(el){el.style.display=(r==="World"||el.getAttribute("data-region")===r)?"":"none"})})})})();</script>')
-def filters():
-    return '<nav class="filters"><a href="#" data-r="World" class="on">World</a>' + "".join(f'<a href="#" data-r="{esc(r)}">{esc(r)}</a>' for r in REGIONS) + '</nav>'
-def indicators(countries, fin):
-    """Economic indicators for every country, from the figures already fetched daily (finance.json); rows filter by region with the stories."""
-    rows = ""
-    for cc, c in countries.items():
-        f = fin.get(cc, {}); fx, ix, pr, inf, gr = f.get("fx"), f.get("index"), f.get("policy_rate"), f.get("inflation"), f.get("gdp_growth")
-        fxv = "—"; fxc = ""
-        if c["currency"] == "USD": fxv = "1.000"
-        elif fx:
-            fxv = fmt_num(fx["per_usd"], 3 if fx["per_usd"] < 10 else 1)
-            if fx.get("prev"): ch = -(fx["per_usd"] / fx["prev"] - 1) * 100; fxc = f'<span class="{cls(ch)}">{pct(ch)}</span>'
-        rows += (f'<tr data-region="{esc(c["region"])}"><td><a href="../../c/{cc}/">{c["flag"]} {esc(c["name"])}</a></td>'
-                 f'<td>{esc(c["currency"])} {fxv} {fxc}</td>'
-                 f'<td>{esc(c["index"]["name"])} {fmt_num(ix["price"]) if ix else "—"} ' + (f'<span class="{cls(ix.get("change_pct"))}">{pct(ix.get("change_pct"))}</span>' if ix else "") + '</td>'
-                 f'<td>{pct(pr["rate"], sign=False) if pr else "—"}</td><td>{pct(inf["value"], sign=False) if inf else "—"}</td><td>{pct(gr["value"]) if gr else "—"}</td></tr>')
-    return ('<section class="ind"><h2>Indicators<small>today, by country</small></h2><table><thead><tr><th>Country</th><th>Currency per USD · 1 day</th><th>Index · day</th><th>Policy rate</th><th>Inflation</th><th>GDP growth</th></tr></thead>'
-            f'<tbody>{rows}</tbody></table><p class="src">Currency: open exchange-rate feed, daily. Index: last close and day change. Rate: the central bank\'s last decision. Inflation and growth: World Bank, latest year.</p></section>')
-def topic_page(topic, items, countries, counts, now, fin=None):
+def topic_page(topic, items, countries, counts, now):
     name = GROUPS[topic]
     h = head(f'{name} · International News Hub', f'{name}: the day\'s {name.lower()} stories from {len({cc for cc, _ in items})} countries\' own press, summarized.', 2)
     h += topics_bar(counts, 2, topic)
-    h += f'<section class="thero"><h1>{esc(name)}</h1><div class="sub">{len(items)} stories from {len({cc for cc, _ in items})} countries · updated {rel(now - 60, now)}</div></section>'
-    h += filters()
-    if topic == "economy" and fin: h += indicators(countries, fin)
+    h += f'<section class="thero"><div class="eyebrow">Subject</div><h1>{esc(name)}</h1><div class="sub">{len(items)} stories from {len({cc for cc, _ in items})} countries · updated {rel(now - 60, now)}</div></section>'
     h += '<section class="stories wide">' + "".join(card(s, cc, countries[cc], now, 2, show_country=True) for cc, s in items) + '</section>'
-    return h + FILTER_JS + foot(2)
+    return h + foot(2)
 def topics_index(by_topic, countries, counts, now):
     h = head("Subjects · International News Hub", "The day's news across twenty countries, by subject.", 1)
-    h += '<section class="thero"><h1>Categories</h1><div class="sub">Every story is labeled once; each category gathers the day across all twenty countries.</div></section><div class="tiles">'
+    h += '<section class="thero"><div class="eyebrow">Browse</div><h1>By subject</h1><div class="sub">Every story is labeled once; each subject gathers the day across all twenty countries.</div></section><div class="tiles">'
     for t in GROUPS:
         items = by_topic.get(t, [])
         if not items: continue
@@ -194,18 +171,9 @@ def ribbon(countries, fin):
 def home(countries, pages, fin, now, by_topic=None, counts=None):
     h = head("International News Hub", "One country at a time: its own press, summarized, with the day's markets.", 0)
     h += ribbon(countries, fin)
-    if counts: h += topics_bar(counts, 0)
     h += ('<section class="hero"><div><h1>The world, <em>one country</em> at a time.</h1>'
           '<p>Each country’s news as its own press reports it, summarized in plain English every few hours, with the currency, the market, and the rate that matter there today.</p></div>'
           f'<div class="globe">{map_svg("WORLD")}</div></section>')
-    if by_topic:
-        h += '<section class="cats"><div class="tiles">'
-        for t in GROUPS:
-            items = by_topic.get(t, [])
-            if not items: continue
-            flags = "".join(dict.fromkeys(countries[cc]["flag"] for cc, _ in items[:12]))
-            h += f'<a class="tile tt" href="t/{t}/"><h3>{esc(GROUPS[t])}</h3><div class="meta"><b>{len(items)} stories</b> · {flags}</div></a>'
-        h += '</div></section>'
     h += '<div id="regions">'
     for region in REGIONS:
         ccs = [cc for cc, c in countries.items() if c["region"] == region]
@@ -218,6 +186,14 @@ def home(countries, pages, fin, now, by_topic=None, counts=None):
                   f'<div class="flag">{c["flag"]}</div><h3>{esc(c["name"])}</h3><div class="meta">{meta}</div></a>')
         h += '</div></section>'
     h += '</div>'
+    if by_topic:
+        h += '<section class="region"><h2>By subject<small>across all countries</small></h2><div class="tiles">'
+        for t in GROUPS:
+            items = by_topic.get(t, [])
+            if not items: continue
+            flags = "".join(dict.fromkeys(countries[cc]["flag"] for cc, _ in items[:12]))
+            h += f'<a class="tile tt" href="t/{t}/"><h3>{esc(GROUPS[t])}</h3><div class="meta"><b>{len(items)} stories</b> · {flags}</div></a>'
+        h += '</div></section>'
     h += ('<script>(function(){var r=document.getElementById("regions");var s=Array.from(r.children);'  # rotate which region leads, per visit
           'var k=Math.floor(Math.random()*s.length);s.slice(k).concat(s.slice(0,k)).forEach(function(e){r.appendChild(e)})})();</script>')
     return h + foot(0)
@@ -319,7 +295,7 @@ def main():
     for t, items in by_topic.items():
         if t not in GROUPS: continue
         os.makedirs(os.path.join(SITE, "t", t), exist_ok=True)
-        open(os.path.join(SITE, "t", t, "index.html"), "w").write(topic_page(t, items, countries, counts, now, fin))
+        open(os.path.join(SITE, "t", t, "index.html"), "w").write(topic_page(t, items, countries, counts, now))
     os.makedirs(os.path.join(SITE, "t"), exist_ok=True)
     open(os.path.join(SITE, "t", "index.html"), "w").write(topics_index(by_topic, countries, counts, now))
     log("subjects: " + ", ".join(f"{t} {n}" for t, n in sorted(counts.items(), key=lambda x: -x[1])))

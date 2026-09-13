@@ -77,3 +77,13 @@ footer { border-top: 1px solid var(--line); color: var(--ivory-3); font-size: 13
 .art .lbl { position: absolute; left: 0; right: 0; bottom: 0; padding: 6px 9px; font: 600 10.5px/1.2 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--ivory); background: linear-gradient(transparent, rgba(11,18,32,.85)); }
 .stories.wide .art .lbl { font-size: 11.5px }
 .tile.tt { min-height: 110px; justify-content: center }
+
+/* v2.3 (9/13): categories first, region filters, indicators */
+.topics { padding: 14px 0 10px; border-bottom: 1px solid var(--line) }
+.cats { padding: 6px 0 10px } .cats .tiles { margin: 0 }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; padding: 4px 0 18px; font-size: 12.5px; letter-spacing: .12em; text-transform: uppercase }
+.filters a { padding: 6px 12px; border-bottom: 2px solid transparent; color: var(--ivory-3) } .filters a.on, .filters a:hover { color: var(--ivory); border-color: var(--brass) }
+.ind { margin: 0 0 30px } .ind h2 { font: 500 22px/1.1 var(--serif); margin: 0 0 12px; display: flex; align-items: baseline; gap: 12px } .ind h2 small { font: 400 11px/1 var(--sans); letter-spacing: .24em; text-transform: uppercase; color: var(--brass) }
+.ind table { width: 100%; border-collapse: collapse; font-size: 14px } .ind th { text-align: left; font: 600 11px/1.4 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--ivory-3); padding: 8px 10px; border-bottom: 1px solid var(--line-2) }
+.ind td { padding: 9px 10px; border-bottom: 1px solid var(--line); color: var(--ivory-2); white-space: nowrap } .ind td:first-child a { color: var(--ivory) } .ind .src { font-size: 12.5px; color: var(--ivory-3); margin: 10px 0 0 }
+@media (max-width: 860px) { .ind { overflow-x: auto } .ind table { min-width: 720px } }
