@@ -53,6 +53,9 @@ def main():
         if cc in rates_table: rec["policy_rate"] = rates_table[cc]
         out["countries"][cc] = rec
     json.dump(out, open(OUT, "w"))
+    try:
+        import history; history.append()                                # v2.4: today's values into the chart history
+    except Exception as e: log("history append failed", str(e)[:80])
     log("finance.json written for", len(out["countries"]), "countries; fx", "ok" if fxr else "kept", "| world bank rows", sum(len(v) for v in wb.values()))
 
 if __name__ == "__main__": main()

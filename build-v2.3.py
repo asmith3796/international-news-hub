@@ -115,19 +115,6 @@ def map_svg(cc, depth=0):
     """A div masked with the country's silhouette (the SVG is fetched once and cached by the browser, not inlined)."""
     return f'<div class="mask" style="--m:url({"../" * depth}maps/{cc}.svg)"></div>' if os.path.exists(os.path.join(MAPS, f"{cc}.svg")) else ""
 
-HIST = json.load(open(os.path.join(DATA, "history.json"))) if os.path.exists(os.path.join(DATA, "history.json")) else {}
-def spark(cc, kind, days=30, w=96, h=26, invert=False):
-    """A 30-day sparkline as inline SVG from history.json (our own drawing, no library). Color follows the direction over the window;
-    for currencies 'invert' colors a falling per-USD rate (a stronger currency) green."""
-    pts = (HIST.get(cc, {}).get(kind) or [])[-days:]
-    if len(pts) < 3: return ""
-    vals = [v for _, v in pts]; lo, hi = min(vals), max(vals); rng = (hi - lo) or 1e-9
-    xs = [i * (w - 2) / (len(vals) - 1) + 1 for i in range(len(vals))]; ys = [h - 2 - (v - lo) / rng * (h - 4) for v in vals]
-    d = " ".join(f"{x:.1f},{y:.1f}" for x, y in zip(xs, ys)); up = (vals[-1] >= vals[0]) != invert
-    col = "var(--up)" if up else "var(--down)"
-    return (f'<svg class="spark" viewBox="0 0 {w} {h}" width="{w}" height="{h}" aria-label="{days}-day trend"><polyline points="{d}" fill="none" stroke="{col}" stroke-width="1.5" stroke-linejoin="round"/>'
-            f'<circle cx="{xs[-1]:.1f}" cy="{ys[-1]:.1f}" r="1.8" fill="{col}"/></svg>')
-
 def head(title, desc, depth=0):
     base = "../" * depth
     return (f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">'
@@ -168,7 +155,7 @@ def indicators(countries, fin):
             if fx.get("prev"): ch = -(fx["per_usd"] / fx["prev"] - 1) * 100; fxc = f'<span class="{cls(ch)}">{pct(ch)}</span>'
         rows += (f'<tr data-region="{esc(c["region"])}"><td><a href="../../c/{cc}/">{c["flag"]} {esc(c["name"])}</a></td>'
                  f'<td>{esc(c["currency"])} {fxv} {fxc}</td>'
-                 f'<td>{esc(c["index"]["name"])} {fmt_num(ix["price"]) if ix else "—"} ' + (f'<span class="{cls(ix.get("change_pct"))}">{pct(ix.get("change_pct"))}</span>' if ix else "") + f' {spark(cc, "index", w=72, h=18)}</td>'
+                 f'<td>{esc(c["index"]["name"])} {fmt_num(ix["price"]) if ix else "—"} ' + (f'<span class="{cls(ix.get("change_pct"))}">{pct(ix.get("change_pct"))}</span>' if ix else "") + '</td>'
                  f'<td>{pct(pr["rate"], sign=False) if pr else "—"}</td><td>{pct(inf["value"], sign=False) if inf else "—"}</td><td>{pct(gr["value"]) if gr else "—"}</td></tr>')
     return ('<section class="ind"><h2>Indicators<small>today, by country</small></h2><table><thead><tr><th>Country</th><th>Currency per USD · 1 day</th><th>Index · day</th><th>Policy rate</th><th>Inflation</th><th>GDP growth</th></tr></thead>'
             f'<tbody>{rows}</tbody></table><p class="src">Currency: open exchange-rate feed, daily. Index: last close and day change. Rate: the central bank\'s last decision. Inflation and growth: World Bank, latest year.</p></section>')
@@ -201,7 +188,7 @@ def ribbon(countries, fin):
     for cc, c in countries.items():
         ix = fin.get(cc, {}).get("index")
         if not ix: continue
-        parts.append(f'<span><a href="c/{cc}/">{c["flag"]} {esc(c["index"]["name"])}</a><b>{fmt_num(ix["price"])}</b> <b class="{cls(ix.get("change_pct"))}">{pct(ix.get("change_pct"))}</b>{spark(cc, "index", w=64, h=18)}</span>')
+        parts.append(f'<span><a href="c/{cc}/">{c["flag"]} {esc(c["index"]["name"])}</a><b>{fmt_num(ix["price"])}</b> <b class="{cls(ix.get("change_pct"))}">{pct(ix.get("change_pct"))}</b></span>')
     return '<div class="ribbon">' + "".join(parts) + '</div>'
 
 def home(countries, pages, fin, now, by_topic=None, counts=None):
@@ -248,8 +235,8 @@ def country_page(cc, c, stories, f, now, counts=None):
     if fx and fx.get("prev") and c["currency"] != "USD":
         ch = (fx["per_usd"] / fx["prev"] - 1) * 100; fxd = f'<span class="{cls(-ch)}">{pct(-ch)}</span> vs USD, 1 day'
     elif fx: fxd = esc(fx.get("date", ""))
-    inst = [("Currency", fxv, fxd + (f'<div class="sp">{spark(cc, "fx", invert=True)}<i>30 days</i></div>' if c["currency"] != "USD" else "")),
-            (c["index"]["name"], fmt_num(ix["price"]) if ix else "—", (f'<span class="{cls(ix.get("change_pct"))}">{pct(ix.get("change_pct"))}</span> on the day' if ix else "") + f'<div class="sp">{spark(cc, "index")}<i>30 days</i></div>'),
+    inst = [("Currency", fxv, fxd),
+            (c["index"]["name"], fmt_num(ix["price"]) if ix else "—", (f'<span class="{cls(ix.get("change_pct"))}">{pct(ix.get("change_pct"))}</span> on the day' if ix else "")),
             ("Policy rate", pct(pr["rate"], sign=False) if pr else "—", (f'{esc(pr.get("last_move", "").capitalize())} · {esc(pr["decided"])}' if pr and pr.get("decided") else "no verified figure")),
             ("Inflation", pct(inf["value"], sign=False) if inf else "—", f'{inf["year"]}, World Bank' if inf else ""),
             ("GDP growth", pct(gr["value"], sign=True) if gr else "—", f'{gr["year"]}, World Bank' if gr else "")]

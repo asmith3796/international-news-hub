@@ -87,3 +87,8 @@ footer { border-top: 1px solid var(--line); color: var(--ivory-3); font-size: 13
 .ind table { width: 100%; border-collapse: collapse; font-size: 14px } .ind th { text-align: left; font: 600 11px/1.4 var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--ivory-3); padding: 8px 10px; border-bottom: 1px solid var(--line-2) }
 .ind td { padding: 9px 10px; border-bottom: 1px solid var(--line); color: var(--ivory-2); white-space: nowrap } .ind td:first-child a { color: var(--ivory) } .ind .src { font-size: 12.5px; color: var(--ivory-3); margin: 10px 0 0 }
 @media (max-width: 860px) { .ind { overflow-x: auto } .ind table { min-width: 720px } }
+
+/* v2.4 (9/13): sparklines */
+.spark { vertical-align: middle; margin-left: 8px; opacity: .9 } .ribbon .spark { margin-left: 10px }
+.inst .sp { display: flex; align-items: center; gap: 8px; margin-top: 8px } .inst .sp i { font-style: normal; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--ivory-3) }
+.ind td .spark { margin-left: 8px }
