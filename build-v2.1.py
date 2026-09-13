@@ -18,11 +18,6 @@ REGIONS = ["Americas", "Europe", "Middle East", "Asia-Pacific"]
 TOPICS = {"economy": ("Economy", "Ec"), "markets": ("Markets", "Mk"), "business": ("Business", "Bz"), "trade": ("Trade", "Tr"), "energy": ("Energy", "En"),
           "technology": ("Technology", "Te"), "politics": ("Politics", "Po"), "world": ("World", "Wo"), "society": ("Society", "So"), "science": ("Science & Health", "Sc"),
           "sport": ("Sport", "Sp"), "culture": ("Culture", "Cu")}
-# v2.2 (9/13, his ruling): the fine labels above stay in the cache; the site shows five groups, the full name on every panel.
-GROUPS = {"economy": "Economy & Finance", "politics": "Politics & World", "technology": "Technology & Science", "culture": "Society & Culture", "sport": "Sport"}
-GROUP_OF = {"economy": "economy", "markets": "economy", "business": "economy", "trade": "economy", "energy": "economy", "politics": "politics", "world": "politics",
-            "technology": "technology", "science": "technology", "society": "culture", "culture": "culture", "sport": "sport"}
-def group_of(t): return GROUP_OF.get(t or "", "politics")
 SITE_URL = "https://internationalnewshub.com"
 
 class _Strip(HTMLParser):
@@ -127,19 +122,19 @@ def head(title, desc, depth=0):
 def topics_bar(counts, depth=0, current=None):
     base = "../" * depth
     on = ' class="on"'
-    return '<nav class="topics">' + "".join(f'<a href="{base}t/{t}/"{on if t == current else ""}>{esc(GROUPS[t])}<b>{counts.get(t, 0)}</b></a>' for t in GROUPS if counts.get(t)) + '</nav>'
+    return '<nav class="topics">' + "".join(f'<a href="{base}t/{t}/"{on if t == current else ""}>{esc(TOPICS[t][0])}<b>{counts.get(t, 0)}</b></a>' for t in TOPICS if counts.get(t)) + '</nav>'
 def art(cc, c, topic, depth):
     """Story art from our own assets only: the flag's colors, the country's silhouette, a subject monogram. No outlet images anywhere."""
     c1, c2 = (c["colors"] + [c["colors"][0]])[:2]
-    return f'<div class="art" style="--c1:{c1};--c2:{c2}"><div class="map">{map_svg(cc, depth)}</div><span class="lbl">{esc(GROUPS[group_of(topic)])}</span></div>'
+    return f'<div class="art" style="--c1:{c1};--c2:{c2}"><div class="map">{map_svg(cc, depth)}</div><span class="mono">{TOPICS.get(topic, TOPICS["world"])[1]}</span></div>'
 def card(s, cc, c, now, depth, show_country=False):
-    t = s["tr"].get("en") or {}; topic = group_of(s.get("topic"))
+    t = s["tr"].get("en") or {}; topic = s.get("topic") or "world"
     where = f'<a class="cc" href="{"../" * depth}c/{cc}/">{c["flag"]} {esc(c["name"])}</a> · ' if show_country else ""
     return (f'<article class="story">{art(cc, c, topic, depth)}<div class="body"><h3><a href="{esc(s["link"])}" target="_blank" rel="noopener">{esc(t.get("title") or s["title"])}</a></h3>'
             + (f'<p>{esc(t["summary"])}</p>' if t.get("summary") else "")
-            + f'<div class="src">{where}<a class="tp" href="{"../" * depth}t/{topic}/">{esc(GROUPS[topic])}</a> · Source: {esc(s["outlet"])} · <a href="{esc(s["link"])}" target="_blank" rel="noopener">read the original</a>' + (f' · {rel(s["time"], now)}' if s.get("dated") else "") + '</div></div></article>')
+            + f'<div class="src">{where}<a class="tp" href="{"../" * depth}t/{topic}/">{esc(TOPICS.get(topic, TOPICS["world"])[0])}</a> · Source: {esc(s["outlet"])} · <a href="{esc(s["link"])}" target="_blank" rel="noopener">read the original</a>' + (f' · {rel(s["time"], now)}' if s.get("dated") else "") + '</div></div></article>')
 def topic_page(topic, items, countries, counts, now):
-    name = GROUPS[topic]
+    name = TOPICS[topic][0]
     h = head(f'{name} · International News Hub', f'{name}: the day\'s {name.lower()} stories from {len({cc for cc, _ in items})} countries\' own press, summarized.', 2)
     h += topics_bar(counts, 2, topic)
     h += f'<section class="thero"><div class="eyebrow">Subject</div><h1>{esc(name)}</h1><div class="sub">{len(items)} stories from {len({cc for cc, _ in items})} countries · updated {rel(now - 60, now)}</div></section>'
@@ -148,11 +143,11 @@ def topic_page(topic, items, countries, counts, now):
 def topics_index(by_topic, countries, counts, now):
     h = head("Subjects · International News Hub", "The day's news across twenty countries, by subject.", 1)
     h += '<section class="thero"><div class="eyebrow">Browse</div><h1>By subject</h1><div class="sub">Every story is labeled once; each subject gathers the day across all twenty countries.</div></section><div class="tiles">'
-    for t in GROUPS:
+    for t in TOPICS:
         items = by_topic.get(t, [])
         if not items: continue
         flags = "".join(dict.fromkeys(countries[cc]["flag"] for cc, _ in items[:14]))
-        h += f'<a class="tile tt" href="{t}/"><h3>{esc(GROUPS[t])}</h3><div class="meta"><b>{len(items)} stories</b> · {flags}</div></a>'
+        h += f'<a class="tile tt" href="{t}/"><span class="mono">{TOPICS[t][1]}</span><h3>{esc(TOPICS[t][0])}</h3><div class="meta"><b>{len(items)} stories</b> · {flags}</div></a>'
     return h + '</div>' + foot(1)
 def foot(depth=0):
     base = "../" * depth
@@ -188,11 +183,11 @@ def home(countries, pages, fin, now, by_topic=None, counts=None):
     h += '</div>'
     if by_topic:
         h += '<section class="region"><h2>By subject<small>across all countries</small></h2><div class="tiles">'
-        for t in GROUPS:
+        for t in TOPICS:
             items = by_topic.get(t, [])
             if not items: continue
             flags = "".join(dict.fromkeys(countries[cc]["flag"] for cc, _ in items[:12]))
-            h += f'<a class="tile tt" href="t/{t}/"><h3>{esc(GROUPS[t])}</h3><div class="meta"><b>{len(items)} stories</b> · {flags}</div></a>'
+            h += f'<a class="tile tt" href="t/{t}/"><span class="mono">{TOPICS[t][1]}</span><h3>{esc(TOPICS[t][0])}</h3><div class="meta"><b>{len(items)} stories</b> · {flags}</div></a>'
         h += '</div></section>'
     h += ('<script>(function(){var r=document.getElementById("regions");var s=Array.from(r.children);'  # rotate which region leads, per visit
           'var k=Math.floor(Math.random()*s.length);s.slice(k).concat(s.slice(0,k)).forEach(function(e){r.appendChild(e)})})();</script>')
@@ -285,7 +280,7 @@ def main():
         if cc not in pub and os.path.exists(os.path.join(DATA, f"{cc}.json")): pub[cc] = json.load(open(os.path.join(DATA, f"{cc}.json")))["stories"]
     by_topic = {}
     for cc, sts in pub.items():
-        for s_ in sts: by_topic.setdefault(group_of(s_.get("topic")), []).append((cc, s_))
+        for s_ in sts: by_topic.setdefault(s_.get("topic") or "world", []).append((cc, s_))
     for t in by_topic: by_topic[t].sort(key=lambda x: -(x[1]["time"] or 0))
     counts = {t: len(v) for t, v in by_topic.items()}
     for cc, c in countries.items():
@@ -293,7 +288,7 @@ def main():
             os.makedirs(os.path.join(SITE, "c", cc), exist_ok=True)
             open(os.path.join(SITE, "c", cc, "index.html"), "w").write(country_page(cc, c, pub[cc], fin.get(cc, {}), now, counts))
     for t, items in by_topic.items():
-        if t not in GROUPS: continue
+        if t not in TOPICS: continue
         os.makedirs(os.path.join(SITE, "t", t), exist_ok=True)
         open(os.path.join(SITE, "t", t, "index.html"), "w").write(topic_page(t, items, countries, counts, now))
     os.makedirs(os.path.join(SITE, "t"), exist_ok=True)
