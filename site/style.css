@@ -115,3 +115,9 @@ footer { border-top: 1px solid var(--line); color: var(--ivory-3); font-size: 13
 /* v2.7 (9/13): Elections page; the chip on Politics is a link */
 .filters a.go { margin-left: auto; color: var(--brass); border-color: var(--brass) }
 .ind .stories.wide { padding-bottom: 10px }
+
+/* v2.8 (9/13): odds */
+.tiles.odds { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); margin-bottom: 14px } .tile.odd { min-height: 0; justify-content: flex-start } .tile.odd h3 { margin-bottom: 10px }
+.orow { display: grid; grid-template-columns: 1fr 90px 44px; gap: 10px; align-items: center; font-size: 13.5px; color: var(--ivory-2); margin: 5px 0 } .orow .on { overflow: hidden; text-overflow: ellipsis; white-space: nowrap }
+.orow .ob { height: 8px; background: rgba(243,236,220,.1); border-radius: 4px; overflow: hidden } .orow .ob i { display: block; height: 100%; background: var(--brass) } .orow b { text-align: right; color: var(--ivory) }
+.tile.odd .meta { margin-top: 10px } .tile.odd .meta a { color: var(--brass) }

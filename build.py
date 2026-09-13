@@ -214,12 +214,28 @@ def us_map(states, key, title):
         tip = f'{st.get("name", code)}: {st.get("governor", "")} ({st.get("party", "")}) · next governor election {st.get("next_governor_election", "")}' if key == "party" else f'{st.get("name", code)}: {p}'
         paths += f'<path d="{d}" fill="{pc(p)}" stroke="#0b1220" stroke-width="1"><title>{esc(tip)}</title></path>'
     return f'<figure class="usmap"><svg viewBox="0 0 960 600" width="100%"><g>{paths}</g></svg><figcaption>{esc(title)}</figcaption></figure>'
+ODDS = json.load(open(os.path.join(DATA, "odds.json"))) if os.path.exists(os.path.join(DATA, "odds.json")) else {}
+def odds_section(now):
+    """Market-implied odds as our own bars; the figure is a betting price, labeled so, with the market linked."""
+    evs = ODDS.get("events") or []
+    if not evs: return ""
+    def card_(e):
+        rows = "".join(f'<div class="orow"><span class="on">{esc(r["name"])}</span><span class="ob"><i style="width:{min(100, r["p"])}%"></i></span><b>{r["p"]:.0f}%</b></div>' for r in e["top"])
+        return f'<div class="tile odd"><h3>{esc(e["label"])}</h3>{rows}<div class="meta"><a href="{esc(e["url"])}" target="_blank" rel="noopener">Polymarket</a> · ${e["volume"]:,.0f} traded</div></div>'
+    us = [e for e in evs if e["group"] == "US"]; world = [e for e in evs if e["group"] != "US"]
+    h = f'<section class="ind"><h2>Odds<small>market-implied · updated {rel(ODDS.get("updated", now), now)}</small></h2>'
+    h += '<p class="lead">What bettors on Polymarket will pay for a "yes," shown as a percentage. A betting price, not a poll or a forecast; thin markets swing.</p>'
+    if world: h += '<div class="tiles odds">' + "".join(card_(e) for e in world) + '</div>'
+    if us: h += '<div class="tiles odds">' + "".join(card_(e) for e in us) + '</div>'
+    return h + '</section>'
+
 def ballot_page(countries, counts, now, news=None):
     h = head("Elections · International News Hub", "Election news, who governs in every country on the hub, and the United States state by state.", 1)
     h += topics_bar(counts, 1)
     h += '<section class="thero"><h1>Elections</h1><div class="sub">The day\'s election news; who holds power now, colored by party; the United States state by state; every country\'s last and next vote.</div></section>'
     if news:
         h += f'<section class="ind"><h2>Election news<small>{len(news)} stories today</small></h2>' + filters() + '<div class="stories wide">' + "".join(card(s_, cc, countries[cc], now, 1, show_country=True) for cc, s_ in news[:30]) + '</div></section>'
+    h += odds_section(now)
     if LEADERS:
         h += '<section class="ind"><h2>Who governs<small>head of government, party, since</small></h2><div class="tiles gov">'
         for cc, c in countries.items():
