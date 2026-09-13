@@ -14,6 +14,10 @@ LANGS = {"en": "English"}
 PER_COUNTRY = 12; EXCERPT_CHARS = 600; MODEL = "claude-haiku-4-5-20251001"
 UA = {"User-Agent": "Mozilla/5.0 (compatible; InternationalNewsHub/2.0; +https://internationalnewshub.com)"}
 REGIONS = ["Americas", "Europe", "Middle East", "Asia-Pacific"]
+# v2.1 (9/12): every story carries one subject label, assigned by the same model call that writes its summary; subject pages cut across countries.
+TOPICS = {"economy": ("Economy", "Ec"), "markets": ("Markets", "Mk"), "business": ("Business", "Bz"), "trade": ("Trade", "Tr"), "energy": ("Energy", "En"),
+          "technology": ("Technology", "Te"), "politics": ("Politics", "Po"), "world": ("World", "Wo"), "society": ("Society", "So"), "science": ("Science & Health", "Sc"),
+          "sport": ("Sport", "Sp"), "culture": ("Culture", "Cu")}
 SITE_URL = "https://internationalnewshub.com"
 
 class _Strip(HTMLParser):
@@ -66,7 +70,8 @@ def write_batch(client, items, targets):
               f"- \"summary\": one or two plain sentences IN YOUR OWN WORDS, in that language, stating what the outlet reports. Use only facts present in the headline and excerpt; "
               f"add nothing, speculate about nothing, quote nothing verbatim, and do not copy the excerpt's sentences. Neutral tone, no opinion, no 'the article says'. "
               f"If the excerpt is (none), summarize the headline alone in one sentence. Keep each summary under 45 words.\n"
-              f"Return ONLY valid JSON (escape any double quotes inside strings as \\\"): {{\"<id>\": {{\"<lang>\": {{\"title\": \"...\", \"summary\": \"...\"}}, ...}}, ...}}\n\n{src}")
+              f"Also give each item one \"topic\" from exactly this list: {', '.join(TOPICS)} (economy = macro, jobs, prices, central banks, GDP; markets = stocks, bonds, currencies, commodities; business = companies, deals, earnings; trade = tariffs, exports, supply chains).\n"
+              f"Return ONLY valid JSON (escape any double quotes inside strings as \\\"): {{\"<id>\": {{\"topic\": \"...\", \"<lang>\": {{\"title\": \"...\", \"summary\": \"...\"}}, ...}}, ...}}\n\n{src}")
     r = client.messages.create(model=MODEL, max_tokens=6000, messages=[{"role": "user", "content": prompt}])
     txt = r.content[0].text; m = re.search(r"\{.*\}", txt, re.S)
     try: return (json.loads(m.group(0), strict=False) if m else {}), r.usage.input_tokens, r.usage.output_tokens
@@ -77,6 +82,16 @@ def write_batch(client, items, targets):
             try: res, x, y = write_batch(client, [it], targets); out.update(res); a += x; b += y
             except Exception as e_: log(f"summary failed {it['id']}: {str(e_)[:80]}")
         return out, r.usage.input_tokens + a, r.usage.output_tokens + b
+
+def classify_batch(client, items):
+    """Subject labels for stories whose summaries are already cached (one-time pass; titles only)."""
+    src = "\n".join(f"[{i['id']}] {i['title']}" for i in items)
+    prompt = (f"Label each headline with ONE topic from exactly this list: {', '.join(TOPICS)} (economy = macro, jobs, prices, central banks, GDP; markets = stocks, bonds, currencies, commodities; "
+              f"business = companies, deals, earnings; trade = tariffs, exports, supply chains). Return ONLY JSON: {{\"<id>\": \"<topic>\", ...}}\n\n{src}")
+    r = client.messages.create(model=MODEL, max_tokens=2000, messages=[{"role": "user", "content": prompt}])
+    m = re.search(r"\{.*\}", r.content[0].text, re.S)
+    try: return (json.loads(m.group(0)) if m else {}), r.usage.input_tokens, r.usage.output_tokens
+    except json.JSONDecodeError: return {}, r.usage.input_tokens, r.usage.output_tokens
 
 # ---------- rendering ----------
 def rel(t, now):
@@ -103,7 +118,37 @@ def head(title, desc, depth=0):
             f'<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">'
             f'<link rel="stylesheet" href="{base}style.css"></head><body><div class="wrap">'
             f'<header class="top"><a class="brand" href="{base}./">International News Hub<small>one country at a time</small></a>'
-            f'<nav class="nav"><a href="{base}./">Countries</a><a href="{base}about.html">About</a></nav></header>')
+            f'<nav class="nav"><a href="{base}./">Countries</a><a href="{base}t/">Subjects</a><a href="{base}about.html">About</a></nav></header>')
+def topics_bar(counts, depth=0, current=None):
+    base = "../" * depth
+    on = ' class="on"'
+    return '<nav class="topics">' + "".join(f'<a href="{base}t/{t}/"{on if t == current else ""}>{esc(TOPICS[t][0])}<b>{counts.get(t, 0)}</b></a>' for t in TOPICS if counts.get(t)) + '</nav>'
+def art(cc, c, topic, depth):
+    """Story art from our own assets only: the flag's colors, the country's silhouette, a subject monogram. No outlet images anywhere."""
+    c1, c2 = (c["colors"] + [c["colors"][0]])[:2]
+    return f'<div class="art" style="--c1:{c1};--c2:{c2}"><div class="map">{map_svg(cc, depth)}</div><span class="mono">{TOPICS.get(topic, TOPICS["world"])[1]}</span></div>'
+def card(s, cc, c, now, depth, show_country=False):
+    t = s["tr"].get("en") or {}; topic = s.get("topic") or "world"
+    where = f'<a class="cc" href="{"../" * depth}c/{cc}/">{c["flag"]} {esc(c["name"])}</a> · ' if show_country else ""
+    return (f'<article class="story">{art(cc, c, topic, depth)}<div class="body"><h3><a href="{esc(s["link"])}" target="_blank" rel="noopener">{esc(t.get("title") or s["title"])}</a></h3>'
+            + (f'<p>{esc(t["summary"])}</p>' if t.get("summary") else "")
+            + f'<div class="src">{where}<a class="tp" href="{"../" * depth}t/{topic}/">{esc(TOPICS.get(topic, TOPICS["world"])[0])}</a> · Source: {esc(s["outlet"])} · <a href="{esc(s["link"])}" target="_blank" rel="noopener">read the original</a>' + (f' · {rel(s["time"], now)}' if s.get("dated") else "") + '</div></div></article>')
+def topic_page(topic, items, countries, counts, now):
+    name = TOPICS[topic][0]
+    h = head(f'{name} · International News Hub', f'{name}: the day\'s {name.lower()} stories from {len({cc for cc, _ in items})} countries\' own press, summarized.', 2)
+    h += topics_bar(counts, 2, topic)
+    h += f'<section class="thero"><div class="eyebrow">Subject</div><h1>{esc(name)}</h1><div class="sub">{len(items)} stories from {len({cc for cc, _ in items})} countries · updated {rel(now - 60, now)}</div></section>'
+    h += '<section class="stories wide">' + "".join(card(s, cc, countries[cc], now, 2, show_country=True) for cc, s in items) + '</section>'
+    return h + foot(2)
+def topics_index(by_topic, countries, counts, now):
+    h = head("Subjects · International News Hub", "The day's news across twenty countries, by subject.", 1)
+    h += '<section class="thero"><div class="eyebrow">Browse</div><h1>By subject</h1><div class="sub">Every story is labeled once; each subject gathers the day across all twenty countries.</div></section><div class="tiles">'
+    for t in TOPICS:
+        items = by_topic.get(t, [])
+        if not items: continue
+        flags = "".join(dict.fromkeys(countries[cc]["flag"] for cc, _ in items[:14]))
+        h += f'<a class="tile tt" href="{t}/"><span class="mono">{TOPICS[t][1]}</span><h3>{esc(TOPICS[t][0])}</h3><div class="meta"><b>{len(items)} stories</b> · {flags}</div></a>'
+    return h + '</div>' + foot(1)
 def foot(depth=0):
     base = "../" * depth
     return (f'<footer>Each item is a short summary written by AI from the outlet\'s own headline and description; the source and a link to the original are on every item. '
@@ -118,7 +163,7 @@ def ribbon(countries, fin):
         parts.append(f'<span><a href="c/{cc}/">{c["flag"]} {esc(c["index"]["name"])}</a><b>{fmt_num(ix["price"])}</b> <b class="{cls(ix.get("change_pct"))}">{pct(ix.get("change_pct"))}</b></span>')
     return '<div class="ribbon">' + "".join(parts) + '</div>'
 
-def home(countries, pages, fin, now):
+def home(countries, pages, fin, now, by_topic=None, counts=None):
     h = head("International News Hub", "One country at a time: its own press, summarized, with the day's markets.", 0)
     h += ribbon(countries, fin)
     h += ('<section class="hero"><div><h1>The world, <em>one country</em> at a time.</h1>'
@@ -136,16 +181,25 @@ def home(countries, pages, fin, now):
                   f'<div class="flag">{c["flag"]}</div><h3>{esc(c["name"])}</h3><div class="meta">{meta}</div></a>')
         h += '</div></section>'
     h += '</div>'
+    if by_topic:
+        h += '<section class="region"><h2>By subject<small>across all countries</small></h2><div class="tiles">'
+        for t in TOPICS:
+            items = by_topic.get(t, [])
+            if not items: continue
+            flags = "".join(dict.fromkeys(countries[cc]["flag"] for cc, _ in items[:12]))
+            h += f'<a class="tile tt" href="t/{t}/"><span class="mono">{TOPICS[t][1]}</span><h3>{esc(TOPICS[t][0])}</h3><div class="meta"><b>{len(items)} stories</b> · {flags}</div></a>'
+        h += '</div></section>'
     h += ('<script>(function(){var r=document.getElementById("regions");var s=Array.from(r.children);'  # rotate which region leads, per visit
           'var k=Math.floor(Math.random()*s.length);s.slice(k).concat(s.slice(0,k)).forEach(function(e){r.appendChild(e)})})();</script>')
     return h + foot(0)
 
-def country_page(cc, c, stories, f, now):
+def country_page(cc, c, stories, f, now, counts=None):
     c1, c2 = (c["colors"] + [c["colors"][0]])[:2]
     h = head(f'{c["name"]} · International News Hub', f'{c["name"]}: its own press, summarized, with today\'s {c["currency"]}, {c["index"]["name"]}, rate, inflation and growth.', 2)
     h += (f'<section class="chero" style="--c1:{c1};--c2:{c2}"><div class="map">{map_svg(cc)}</div>'
           f'<div class="eyebrow">{esc(c["region"])} · {esc(c["capital"])}</div><h1><span class="flag">{c["flag"]}</span>{esc(c["name"])}</h1>'
           f'<div class="sub">{len(stories)} stories from {len({s["outlet"] for s in stories})} of the country’s own outlets · updated {rel(now - 60, now)}</div></section>')
+    if counts: h += topics_bar(counts, 2)
     fx, ix, pr, inf, gr = f.get("fx"), f.get("index"), f.get("policy_rate"), f.get("inflation"), f.get("gdp_growth")
     fxv = ("1 USD = " + fmt_num(fx["per_usd"], 3 if fx["per_usd"] < 10 else 1) + " " + c["currency"]) if fx and c["currency"] != "USD" else ("US dollar" if c["currency"] == "USD" else "—")
     fxd = ""
@@ -159,13 +213,8 @@ def country_page(cc, c, stories, f, now):
             ("GDP growth", pct(gr["value"], sign=True) if gr else "—", f'{gr["year"]}, World Bank' if gr else "")]
     h += '<div class="strip">' + "".join(f'<div class="inst"><div class="k">{esc(k)}</div><div class="v">{v}</div><div class="d">{d}</div></div>' for k, v, d in inst) + '</div>'
     gen = [s for s in stories if s["kind"] != "business"]; biz = [s for s in stories if s["kind"] == "business"]
-    def card(s):
-        t = s["tr"].get("en") or {}
-        return (f'<article class="story"><h3><a href="{esc(s["link"])}" target="_blank" rel="noopener">{esc(t.get("title") or s["title"])}</a></h3>'
-                + (f'<p>{esc(t["summary"])}</p>' if t.get("summary") else "")
-                + f'<div class="src">Source: {esc(s["outlet"])} · <a href="{esc(s["link"])}" target="_blank" rel="noopener">read the original</a>' + (f' · {rel(s["time"], now)}' if s.get("dated") else "") + '</div></article>')
-    h += '<div class="cols"><section class="stories"><h2>Today<small>from the national press</small></h2>' + "".join(card(s) for s in gen) + '</section>'
-    h += '<aside class="side"><section class="stories"><h2>Markets<small>business press</small></h2>' + ("".join(card(s) for s in biz) or '<p class="src">No business-desk stories in this update.</p>') + '</section></aside></div>'
+    h += '<div class="cols"><section class="stories"><h2>Today<small>from the national press</small></h2>' + "".join(card(s, cc, c, now, 2) for s in gen) + '</section>'
+    h += '<aside class="side"><section class="stories"><h2>Markets<small>business press</small></h2>' + ("".join(card(s, cc, c, now, 2) for s in biz) or '<p class="src">No business-desk stories in this update.</p>') + '</section></aside></div>'
     return h + foot(2)
 
 # ---------- main ----------
@@ -181,7 +230,7 @@ def main():
         import anthropic
         key_ = os.environ.get("ANTHROPIC_API_KEY") or json.load(open(os.path.expanduser("~/Desktop/Nicky Bot/config.json")))["anthropic"]["api_key"]
         client = anthropic.Anthropic(api_key=key_)
-    tin = tout = 0; now = int(time.time()); pages = {}
+    tin = tout = 0; now = int(time.time()); pages = {}; pub = {}
     for cc, c in countries.items():
         if only and cc not in only: continue
         fl = feeds.get(cc, {}).get("feeds", [])
@@ -202,22 +251,50 @@ def main():
                     for s in batch:
                         got = res.get(s["id"], {})
                         cache.setdefault(s["id"], {}).update({l: v for l, v in got.items() if l in LANGS and isinstance(v, dict) and v.get("title") and v.get("summary")})
+                        if got.get("topic") in TOPICS: cache[s["id"]]["topic"] = got["topic"]
+            json.dump(cache, open(CACHE, "w"), ensure_ascii=False)
+        todo_t = [s for s in stories if s["id"] in cache and cache[s["id"]].get("topic") not in TOPICS]   # summarized before topics existed: label once
+        if do_write and todo_t:
+            for i in range(0, len(todo_t), 25):
+                try:
+                    res, a, b = classify_batch(client, todo_t[i:i + 25]); tin += a; tout += b
+                    for s in todo_t[i:i + 25]:
+                        if res.get(s["id"]) in TOPICS: cache[s["id"]]["topic"] = res[s["id"]]
+                except Exception as e_: log(f"classify failed {cc}: {str(e_)[:120]}")
             json.dump(cache, open(CACHE, "w"), ensure_ascii=False)
         published = []
         for s in stories:
             tr = cache.get(s["id"], {})
-            if not tr: continue
+            if not any(l in tr for l in LANGS): continue
             published.append({"id": s["id"], "title": s["title"], "link": s["link"], "outlet": s["outlet"], "lang": s["lang"], "kind": s["kind"],
-                              "time": s["time"] or now, "dated": s["time"] is not None, "tr": tr})
+                              "time": s["time"] or now, "dated": s["time"] is not None, "topic": tr.get("topic") or "world", "tr": {l: v for l, v in tr.items() if l in LANGS}})
         json.dump({"country": cc, "name": c["name"], "updated": now, "stories": published}, open(os.path.join(DATA, f"{cc}.json"), "w"), ensure_ascii=False)
         os.makedirs(os.path.join(SITE, "c", cc), exist_ok=True)
-        open(os.path.join(SITE, "c", cc, "index.html"), "w").write(country_page(cc, c, published, fin.get(cc, {}), now))
+        pub[cc] = published
         pages[cc] = len(published)
         log(f"{cc} {c['name']}: {len(published)} published ({len(biz)} business) of {len(allst)} fetched from {len(fl)} feeds, {len(todo)} newly summarized")
     if only:
         for cc in countries:
             if cc not in pages and os.path.exists(os.path.join(DATA, f"{cc}.json")): pages[cc] = len(json.load(open(os.path.join(DATA, f"{cc}.json")))["stories"])
-    open(os.path.join(SITE, "index.html"), "w").write(home(countries, pages, fin, now))
+    for cc in countries:                                                   # every country's stories, this run's or the last one's
+        if cc not in pub and os.path.exists(os.path.join(DATA, f"{cc}.json")): pub[cc] = json.load(open(os.path.join(DATA, f"{cc}.json")))["stories"]
+    by_topic = {}
+    for cc, sts in pub.items():
+        for s_ in sts: by_topic.setdefault(s_.get("topic") or "world", []).append((cc, s_))
+    for t in by_topic: by_topic[t].sort(key=lambda x: -(x[1]["time"] or 0))
+    counts = {t: len(v) for t, v in by_topic.items()}
+    for cc, c in countries.items():
+        if cc in pub and (not only or cc in only):
+            os.makedirs(os.path.join(SITE, "c", cc), exist_ok=True)
+            open(os.path.join(SITE, "c", cc, "index.html"), "w").write(country_page(cc, c, pub[cc], fin.get(cc, {}), now, counts))
+    for t, items in by_topic.items():
+        if t not in TOPICS: continue
+        os.makedirs(os.path.join(SITE, "t", t), exist_ok=True)
+        open(os.path.join(SITE, "t", t, "index.html"), "w").write(topic_page(t, items, countries, counts, now))
+    os.makedirs(os.path.join(SITE, "t"), exist_ok=True)
+    open(os.path.join(SITE, "t", "index.html"), "w").write(topics_index(by_topic, countries, counts, now))
+    log("subjects: " + ", ".join(f"{t} {n}" for t, n in sorted(counts.items(), key=lambda x: -x[1])))
+    open(os.path.join(SITE, "index.html"), "w").write(home(countries, pages, fin, now, by_topic, counts))
     json.dump({"updated": now, "languages": LANGS, "countries": {cc: {"name": c["name"], "region": c["region"], "flag": c["flag"], "n": pages.get(cc, 0)} for cc, c in countries.items()}},
               open(os.path.join(DATA, "index.json"), "w"), ensure_ascii=False)
     live = {s["id"] for cc in countries if os.path.exists(os.path.join(DATA, f"{cc}.json")) for s in json.load(open(os.path.join(DATA, f"{cc}.json")))["stories"]}

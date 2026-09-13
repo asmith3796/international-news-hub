@@ -55,3 +55,19 @@ footer { border-top: 1px solid var(--line); color: var(--ivory-3); font-size: 13
 @media (max-width: 860px) { .hero { grid-template-columns: 1fr; padding-top: 34px } .hero h1 { font-size: 44px } .chero h1 { font-size: 46px } .chero h1 .flag { font-size: 36px } .chero .map { width: 90%; opacity: .14 } .strip { grid-template-columns: repeat(2, 1fr) } .cols { grid-template-columns: 1fr } .wrap { padding: 0 16px } .nav { gap: 14px } }
 
 .mask { width: 100%; height: 100%; background: currentColor; -webkit-mask: var(--m) center / contain no-repeat; mask: var(--m) center / contain no-repeat }
+
+/* v2.1 (9/12): subjects and story art. Art is made only from our own assets: flag colors, country silhouette, a subject monogram. */
+.topics { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 0 4px; font-size: 12.5px; letter-spacing: .08em; text-transform: uppercase }
+.topics a { border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; color: var(--ivory-2); background: rgba(255,255,255,.02) } .topics a b { color: var(--brass); margin-left: 6px; font-weight: 600 }
+.topics a:hover, .topics a.on { border-color: var(--brass); color: var(--ivory) }
+.story { display: grid; grid-template-columns: 112px 1fr; gap: 16px; align-items: start }
+.art { position: relative; overflow: hidden; aspect-ratio: 4/3; border-radius: 10px; border: 1px solid var(--line);
+  background: linear-gradient(150deg, color-mix(in srgb, var(--c1) 34%, var(--ink-2)), color-mix(in srgb, var(--c2) 22%, var(--ink)) 75%) }
+.art::after { content: ""; position: absolute; inset: 0; background-image: repeating-radial-gradient(circle at 80% 20%, rgba(243,236,220,.06) 0 1px, transparent 1px 14px) }
+.art .map { position: absolute; inset: -12% -18% -12% 6%; opacity: .28; color: color-mix(in srgb, var(--c1) 40%, var(--ivory)) }
+.art .mono { position: absolute; left: 10px; bottom: 6px; font: 600 26px/1 var(--serif); color: var(--brass-2); letter-spacing: .02em; text-shadow: 0 1px 6px rgba(0,0,0,.6) }
+.story .src .cc, .story .src .tp { color: var(--brass) }
+.stories.wide { padding-bottom: 60px } .stories.wide .story { grid-template-columns: 148px 1fr }
+.thero { padding: 40px 0 18px } .thero h1 { font: 500 56px/1 var(--serif); margin: 8px 0 10px } .thero .eyebrow { font-size: 12px; letter-spacing: .3em; text-transform: uppercase; color: var(--brass) } .thero .sub { color: var(--ivory-2) }
+.tile.tt { min-height: 120px } .tile.tt .mono { font: 600 34px/1 var(--serif); color: var(--brass-2); margin-bottom: 10px }
+@media (max-width: 860px) { .story { grid-template-columns: 84px 1fr; gap: 12px } .stories.wide .story { grid-template-columns: 96px 1fr } .thero h1 { font-size: 40px } }
