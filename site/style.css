@@ -99,3 +99,15 @@ footer { border-top: 1px solid var(--line); color: var(--ivory-3); font-size: 13
 @media (max-width: 860px) { .strip.two { grid-template-columns: 1fr } }
 
 .ind.ballot td { white-space: normal; vertical-align: top } .ind.ballot td:first-child { white-space: nowrap } .ind.ballot table { table-layout: fixed } .ind.ballot th:nth-child(1) { width: 16% } .ind.ballot th:nth-child(2) { width: 20% } .ind.ballot th:nth-child(3) { width: 22% } .ind.ballot th:nth-child(5) { width: 18% }
+
+/* v2.6 (9/13): the Ballot tab */
+.topics a[data-x] { margin-left: auto; border-color: var(--brass) }
+.tiles.gov .tile, .tiles.cities .tile { border-left: 5px solid var(--pc, var(--line-2)); min-height: 0; justify-content: flex-start; padding-top: 14px }
+.tile .who { font: 500 20px/1.15 var(--serif); margin: 2px 0 4px } .tiles.gov .flag { font-size: 22px; margin-bottom: 6px }
+.strip.four { grid-template-columns: repeat(4, 1fr) } .inst[style*="--pc"] { border-left: 5px solid var(--pc) }
+.bar { margin: 14px 0 } .bar .k { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--ivory-3); margin-bottom: 6px } .bar svg { display: block; height: 28px; border-radius: 6px } .bar .d { font-size: 13px; color: var(--ivory-2); margin-top: 6px }
+.usmap { margin: 22px 0 } .usmap svg { display: block; filter: drop-shadow(0 0 20px rgba(0,0,0,.5)) } .usmap path { transition: opacity .15s } .usmap path:hover { opacity: .75 } .usmap figcaption { font: 500 18px/1.2 var(--serif); margin-top: 8px; color: var(--ivory) }
+.two-maps { display: grid; grid-template-columns: 1fr 1fr; gap: 24px } .two-maps .usmap figcaption { font-size: 15px }
+.tbl { margin: 14px 0 26px } .tbl summary { cursor: pointer; color: var(--brass); font-size: 14px; letter-spacing: .06em } .tbl table { margin-top: 12px } .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; vertical-align: middle }
+.sub2 { font: 500 22px/1.1 var(--serif); margin: 24px 0 10px } .lead { color: var(--ivory-2); margin: 0 0 8px } .notable { color: var(--ivory-2); margin: 0 0 12px; padding-left: 20px } .notable li { margin: 4px 0 }
+@media (max-width: 860px) { .strip.four { grid-template-columns: 1fr 1fr } .two-maps { grid-template-columns: 1fr } }

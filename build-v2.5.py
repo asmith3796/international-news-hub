@@ -140,8 +140,7 @@ def head(title, desc, depth=0):
 def topics_bar(counts, depth=0, current=None):
     base = "../" * depth
     on = ' class="on"'
-    return ('<nav class="topics">' + "".join(f'<a href="{base}t/{t}/"{on if t == current else ""}>{esc(GROUPS[t])}<b>{counts.get(t, 0)}</b></a>' for t in GROUPS if counts.get(t))
-            + (f'<a href="{base}ballot/"{on if current == "ballot" else ""} data-x="1">Ballot</a>' if (ELECT or LEADERS) else "") + '</nav>')
+    return '<nav class="topics">' + "".join(f'<a href="{base}t/{t}/"{on if t == current else ""}>{esc(GROUPS[t])}<b>{counts.get(t, 0)}</b></a>' for t in GROUPS if counts.get(t)) + '</nav>'
 def art(cc, c, topic, depth):
     """Story art from our own assets only: the flag's colors, the country's silhouette, a subject monogram. No outlet images anywhere."""
     c1, c2 = (c["colors"] + [c["colors"][0]])[:2]
@@ -192,70 +191,6 @@ def ballot(countries, depth):
     checked = ELECT.get("_checked", "")
     return ('<section class="ind ballot"><h2>Ballot<small>last vote, next vote</small></h2><table><thead><tr><th>Country</th><th>Last national election</th><th>Winner</th><th>Result</th><th>Next</th></tr></thead>'
             f'<tbody>{rows}</tbody></table><p class="src">From each country\'s electoral authority or, where marked, Wikipedia (CC BY-SA), checked {esc(checked)}. Figures are copied from the source on the row, never extracted from news stories.</p></section>')
-LEADERS = json.load(open(os.path.join(ROOT, "leaders.json"))) if os.path.exists(os.path.join(ROOT, "leaders.json")) else {}
-USDATA = json.load(open(os.path.join(ROOT, "us.json"))) if os.path.exists(os.path.join(ROOT, "us.json")) else {}
-USPATHS = json.load(open(os.path.join(ROOT, "us_states.json"))) if os.path.exists(os.path.join(ROOT, "us_states.json")) else {}
-PCOL = {"R": "#d0342c", "D": "#2e6fd6", "I": "#8a8f98", "split": "#a077c9", "nonpartisan": "#8a8f98", "unicameral": "#8a8f98", "unverified": "#555"}
-def pc(p): return PCOL.get((p or "").strip()[:1].upper() if (p or "").strip()[:1].upper() in ("R", "D", "I") and len((p or "").strip()) <= 12 else (p or ""), PCOL["unverified"])
-def seat_bar(parts, total, label):
-    """A seat bar as our own SVG: parts = [(letter, n)], drawn left to right; the midline marks a majority."""
-    w, h = 600, 22; x = 0; segs = ""
-    for letter, n in parts:
-        if not isinstance(n, (int, float)) or n <= 0: continue
-        sw = n / total * w; segs += f'<rect x="{x:.1f}" y="0" width="{sw:.1f}" height="{h}" fill="{PCOL.get(letter, PCOL["unverified"])}"><title>{letter} {n}</title></rect>'; x += sw
-    return (f'<div class="bar"><div class="k">{esc(label)}</div><svg viewBox="0 0 {w} {h + 6}" width="100%" preserveAspectRatio="none">{segs}'
-            f'<line x1="{w/2}" y1="-2" x2="{w/2}" y2="{h + 6}" stroke="var(--ivory)" stroke-width="1.5"/></svg>'
-            '<div class="d">' + " · ".join(f'<span style="color:{PCOL.get(l, PCOL["unverified"])}">{l} {n}</span>' for l, n in parts if isinstance(n, (int, float)) and n > 0) + f' · of {total}</div></div>')
-def us_map(states, key, title):
-    """The fifty states colored by the party in `key` (governor party, or chamber control), from the public-domain us-atlas outlines."""
-    paths = ""
-    for code, d in USPATHS.items():
-        st = states.get(code, {}); p = st.get(key, "unverified")
-        tip = f'{st.get("name", code)}: {st.get("governor", "")} ({st.get("party", "")}) · next governor election {st.get("next_governor_election", "")}' if key == "party" else f'{st.get("name", code)}: {p}'
-        paths += f'<path d="{d}" fill="{pc(p)}" stroke="#0b1220" stroke-width="1"><title>{esc(tip)}</title></path>'
-    return f'<figure class="usmap"><svg viewBox="0 0 960 600" width="100%"><g>{paths}</g></svg><figcaption>{esc(title)}</figcaption></figure>'
-def ballot_page(countries, counts, now):
-    h = head("Ballot · International News Hub", "Who governs, in every country on the hub, and the United States state by state.", 1)
-    h += topics_bar(counts, 1, "ballot")
-    h += '<section class="thero"><h1>Ballot</h1><div class="sub">Who holds power now, colored by party; the United States state by state; every country\'s last and next vote.</div></section>'
-    if LEADERS:
-        h += '<section class="ind"><h2>Who governs<small>head of government, party, since</small></h2><div class="tiles gov">'
-        for cc, c in countries.items():
-            L = LEADERS.get(cc)
-            if not L: continue
-            g = L.get("head_of_government") or {}; col = L.get("party_color") or "#8a8f98"; hs = L.get("head_of_state") or {}
-            h += (f'<a class="tile gv" href="../c/{cc}/" style="--pc:{esc(col)}"><div class="flag">{c["flag"]}</div><h3>{esc(c["name"])}</h3>'
-                  f'<div class="who">{esc(g.get("name", ""))}</div><div class="meta">{esc(g.get("title", ""))} · <b>{esc(g.get("party", ""))}</b>' + (f' · since {esc(g["since"][:4])}' if g.get("since") else "") + '</div>'
-                  + (f'<div class="meta">{esc(L["coalition"])}</div>' if L.get("coalition") else "") + (f'<div class="meta">{esc(hs.get("title", ""))}: {esc(hs.get("name", ""))}</div>' if hs.get("name") and hs.get("name") != g.get("name") else "") + '</a>')
-        h += '</div></section>'
-    if USDATA:
-        f = USDATA.get("federal", {}); st = USDATA.get("states", {}); e26 = USDATA.get("elections_2026", {})
-        pres = f.get("president", {}); sen = f.get("senate", {}); hou = f.get("house", {}); sc = f.get("supreme_court", {})
-        h += '<section class="ind us"><h2>United States<small>federal, states, cities</small></h2>'
-        h += (f'<div class="strip four"><div class="inst" style="--pc:{pc(pres.get("party", ""))}"><div class="k">President</div><div class="v small">{esc(pres.get("name", ""))}</div><div class="d">{esc(pres.get("party", ""))} · since {esc(str(pres.get("since", ""))[:4])}</div></div>'
-              f'<div class="inst"><div class="k">Vice President</div><div class="v small">{esc(f.get("vice_president", {}).get("name", ""))}</div><div class="d">{esc(f.get("vice_president", {}).get("party", ""))}</div></div>'
-              f'<div class="inst"><div class="k">Speaker of the House</div><div class="v small">{esc(hou.get("speaker", ""))}</div><div class="d">House majority: {esc(hou.get("majority", ""))}</div></div>'
-              f'<div class="inst"><div class="k">Supreme Court</div><div class="v small">{sc.get("appointed_by_R", "—")} R · {sc.get("appointed_by_D", "—")} D</div><div class="d">justices by appointing president\'s party</div></div></div>')
-        h += seat_bar([("D", sen.get("D")), ("I", sen.get("I")), ("R", sen.get("R"))], sen.get("total", 100), f'Senate · majority {sen.get("majority", "")}')
-        h += seat_bar([("D", hou.get("D")), ("R", hou.get("R"))], hou.get("total", 435), f'House of Representatives · majority {hou.get("majority", "")}' + (f' · {hou["vacant"]} vacant' if hou.get("vacant") else ""))
-        gR = sum(1 for v in st.values() if str(v.get("party", "")).upper().startswith("R")); gD = sum(1 for v in st.values() if str(v.get("party", "")).upper().startswith("D"))
-        h += us_map(st, "party", f"Governors: {gR} Republican, {gD} Democratic" + (f", {50 - gR - gD} other" if 50 - gR - gD else ""))
-        h += '<div class="two-maps">' + us_map(st, "senate_control", "State senates, by party control") + us_map(st, "house_control", "State houses, by party control") + '</div>'
-        rows = "".join(f'<tr><td>{esc(v.get("name", k))}</td><td><i class="dot" style="background:{pc(v.get("party", ""))}"></i>{esc(v.get("governor", ""))} ({esc(v.get("party", ""))})</td><td>{esc(str(v.get("next_governor_election", "")))}</td>'
-                       f'<td><i class="dot" style="background:{pc(v.get("senate_control", ""))}"></i>{esc(v.get("senate_control", ""))}</td><td><i class="dot" style="background:{pc(v.get("house_control", ""))}"></i>{esc(v.get("house_control", ""))}</td><td>{esc(", ".join(v.get("senators", [])))}</td></tr>' for k, v in sorted(st.items(), key=lambda x: x[1].get("name", x[0])))
-        h += f'<details class="tbl"><summary>All fifty states: governor, next election, legislature, US senators</summary><table><thead><tr><th>State</th><th>Governor</th><th>Next gov. vote</th><th>Senate</th><th>House</th><th>US Senators</th></tr></thead><tbody>{rows}</tbody></table></details>'
-        cities = USDATA.get("cities", [])
-        if cities:
-            h += '<h3 class="sub2">Largest cities</h3><div class="tiles cities">' + "".join(f'<div class="tile ct" style="--pc:{pc(c.get("party", ""))}"><h3>{esc(c.get("city", ""))}, {esc(c.get("state", ""))}</h3><div class="who">{esc(c.get("mayor", ""))}</div><div class="meta">{esc(c.get("party", ""))} · since {esc(str(c.get("since", "")))} · next {esc(str(c.get("next_election", "")))}</div></div>' for c in cities) + '</div>'
-        if e26:
-            h += (f'<h3 class="sub2">Next: {esc(e26.get("date", "2026-11-03"))}</h3><p class="lead">{esc(e26.get("house", ""))}; {e26.get("senate_seats", "")} Senate seats; {e26.get("governor_races", "")} governor races'
-                  + (f' ({", ".join(e26.get("governor_states", []))})' if e26.get("governor_states") else "") + '.</p>'
-                  + ('<ul class="notable">' + "".join(f'<li>{esc(x)}</li>' for x in e26.get("notable", [])) + '</ul>' if e26.get("notable") else ""))
-        srcs = USDATA.get("sources", {})
-        h += '<p class="src">Sources: ' + " · ".join(f'<a href="{esc(u)}" target="_blank" rel="noopener">{esc(k)}</a>' for k, u in srcs.items() if u) + f'. Checked {esc(USDATA.get("checked", ""))}. Outlines: US Census via us-atlas (public domain).</p></section>'
-    if ELECT: h += ballot(countries, 1)
-    return h + foot(1)
-
 def ballot_card(cc):
     e = ELECT.get(cc)
     if not e: return ""
@@ -270,7 +205,7 @@ def topic_page(topic, items, countries, counts, now, fin=None):
     h += f'<section class="thero"><h1>{esc(name)}</h1><div class="sub">{len(items)} stories from {len({cc for cc, _ in items})} countries · updated {rel(now - 60, now)}</div></section>'
     h += filters(extra=[("Elections", "el")] if topic == "politics" else None)
     if topic == "economy" and fin: h += indicators(countries, fin)
-
+    if topic == "politics" and ELECT: h += ballot(countries, 2)
     h += '<section class="stories wide">' + "".join(card(s, cc, countries[cc], now, 2, show_country=True) for cc, s in items) + '</section>'
     return h + FILTER_JS + foot(2)
 def topics_index(by_topic, countries, counts, now):
@@ -428,9 +363,6 @@ def main():
         open(os.path.join(SITE, "t", t, "index.html"), "w").write(topic_page(t, items, countries, counts, now, fin))
     os.makedirs(os.path.join(SITE, "t"), exist_ok=True)
     open(os.path.join(SITE, "t", "index.html"), "w").write(topics_index(by_topic, countries, counts, now))
-    if ELECT or LEADERS:
-        os.makedirs(os.path.join(SITE, "ballot"), exist_ok=True)
-        open(os.path.join(SITE, "ballot", "index.html"), "w").write(ballot_page(countries, counts, now))
     log("subjects: " + ", ".join(f"{t} {n}" for t, n in sorted(counts.items(), key=lambda x: -x[1])))
     open(os.path.join(SITE, "index.html"), "w").write(home(countries, pages, fin, now, by_topic, counts))
     json.dump({"updated": now, "languages": LANGS, "countries": {cc: {"name": c["name"], "region": c["region"], "flag": c["flag"], "n": pages.get(cc, 0)} for cc, c in countries.items()}},
