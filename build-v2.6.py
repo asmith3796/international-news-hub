@@ -136,12 +136,12 @@ def head(title, desc, depth=0):
             f'<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">'
             f'<link rel="stylesheet" href="{base}style.css"></head><body><div class="wrap">'
             f'<header class="top"><a class="brand" href="{base}./">International News Hub<small>one country at a time</small></a>'
-            f'<nav class="nav"><a href="{base}./">Countries</a>' + (f'<a href="{base}elections/">Elections</a>' if (ELECT or LEADERS) else "") + f'<a href="{base}about.html">About</a></nav></header>')
+            f'<nav class="nav"><a href="{base}./">Countries</a><a href="{base}about.html">About</a></nav></header>')
 def topics_bar(counts, depth=0, current=None):
     base = "../" * depth
     on = ' class="on"'
     return ('<nav class="topics">' + "".join(f'<a href="{base}t/{t}/"{on if t == current else ""}>{esc(GROUPS[t])}<b>{counts.get(t, 0)}</b></a>' for t in GROUPS if counts.get(t))
-            + '</nav>')
+            + (f'<a href="{base}ballot/"{on if current == "ballot" else ""} data-x="1">Ballot</a>' if (ELECT or LEADERS) else "") + '</nav>')
 def art(cc, c, topic, depth):
     """Story art from our own assets only: the flag's colors, the country's silhouette, a subject monogram. No outlet images anywhere."""
     c1, c2 = (c["colors"] + [c["colors"][0]])[:2]
@@ -155,9 +155,9 @@ def card(s, cc, c, now, depth, show_country=False):
 FILTER_JS = ('<script>(function(){var b=document.querySelectorAll(".filters a");b.forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();'
              'b.forEach(function(x){x.classList.remove("on")});a.classList.add("on");var r=a.getAttribute("data-r"),k=a.getAttribute("data-k");'
              'document.querySelectorAll("[data-region]").forEach(function(el){var ok=k?(el.tagName==="TR"||el.hasAttribute("data-el")):(r==="World"||el.getAttribute("data-region")===r);el.style.display=ok?"":"none"})})})})();</script>')
-def filters(link=None):
+def filters(extra=None):
     return ('<nav class="filters"><a href="#" data-r="World" class="on">World</a>' + "".join(f'<a href="#" data-r="{esc(r)}">{esc(r)}</a>' for r in REGIONS)
-            + (f'<a href="{esc(link[1])}" class="kw go">{esc(link[0])} →</a>' if link else "") + '</nav>')
+            + "".join(f'<a href="#" data-k="{k}" class="kw">{esc(label)}</a>' for label, k in (extra or [])) + '</nav>')
 def indicators(countries, fin):
     """Economic indicators for every country, from the figures already fetched daily (finance.json); rows filter by region with the stories."""
     rows = ""
@@ -214,12 +214,10 @@ def us_map(states, key, title):
         tip = f'{st.get("name", code)}: {st.get("governor", "")} ({st.get("party", "")}) · next governor election {st.get("next_governor_election", "")}' if key == "party" else f'{st.get("name", code)}: {p}'
         paths += f'<path d="{d}" fill="{pc(p)}" stroke="#0b1220" stroke-width="1"><title>{esc(tip)}</title></path>'
     return f'<figure class="usmap"><svg viewBox="0 0 960 600" width="100%"><g>{paths}</g></svg><figcaption>{esc(title)}</figcaption></figure>'
-def ballot_page(countries, counts, now, news=None):
-    h = head("Elections · International News Hub", "Election news, who governs in every country on the hub, and the United States state by state.", 1)
-    h += topics_bar(counts, 1)
-    h += '<section class="thero"><h1>Elections</h1><div class="sub">The day\'s election news; who holds power now, colored by party; the United States state by state; every country\'s last and next vote.</div></section>'
-    if news:
-        h += f'<section class="ind"><h2>Election news<small>{len(news)} stories today</small></h2>' + filters() + '<div class="stories wide">' + "".join(card(s_, cc, countries[cc], now, 1, show_country=True) for cc, s_ in news[:30]) + '</div></section>'
+def ballot_page(countries, counts, now):
+    h = head("Ballot · International News Hub", "Who governs, in every country on the hub, and the United States state by state.", 1)
+    h += topics_bar(counts, 1, "ballot")
+    h += '<section class="thero"><h1>Ballot</h1><div class="sub">Who holds power now, colored by party; the United States state by state; every country\'s last and next vote.</div></section>'
     if LEADERS:
         h += '<section class="ind"><h2>Who governs<small>head of government, party, since</small></h2><div class="tiles gov">'
         for cc, c in countries.items():
@@ -256,7 +254,7 @@ def ballot_page(countries, counts, now, news=None):
         srcs = USDATA.get("sources", {})
         h += '<p class="src">Sources: ' + " · ".join(f'<a href="{esc(u)}" target="_blank" rel="noopener">{esc(k)}</a>' for k, u in srcs.items() if u) + f'. Checked {esc(USDATA.get("checked", ""))}. Outlines: US Census via us-atlas (public domain).</p></section>'
     if ELECT: h += ballot(countries, 1)
-    return h + FILTER_JS + foot(1)
+    return h + foot(1)
 
 def ballot_card(cc):
     e = ELECT.get(cc)
@@ -270,7 +268,7 @@ def topic_page(topic, items, countries, counts, now, fin=None):
     h = head(f'{name} · International News Hub', f'{name}: the day\'s {name.lower()} stories from {len({cc for cc, _ in items})} countries\' own press, summarized.', 2)
     h += topics_bar(counts, 2, topic)
     h += f'<section class="thero"><h1>{esc(name)}</h1><div class="sub">{len(items)} stories from {len({cc for cc, _ in items})} countries · updated {rel(now - 60, now)}</div></section>'
-    h += filters(link=("Elections", "../../elections/") if (topic == "politics" and (ELECT or LEADERS)) else None)
+    h += filters(extra=[("Elections", "el")] if topic == "politics" else None)
     if topic == "economy" and fin: h += indicators(countries, fin)
 
     h += '<section class="stories wide">' + "".join(card(s, cc, countries[cc], now, 2, show_country=True) for cc, s in items) + '</section>'
@@ -431,10 +429,8 @@ def main():
     os.makedirs(os.path.join(SITE, "t"), exist_ok=True)
     open(os.path.join(SITE, "t", "index.html"), "w").write(topics_index(by_topic, countries, counts, now))
     if ELECT or LEADERS:
-        news = sorted([(cc, s_) for cc, sts in pub.items() for s_ in sts if is_election(s_)], key=lambda x: -(x[1]["time"] or 0))
-        os.makedirs(os.path.join(SITE, "elections"), exist_ok=True); os.makedirs(os.path.join(SITE, "ballot"), exist_ok=True)
-        open(os.path.join(SITE, "elections", "index.html"), "w").write(ballot_page(countries, counts, now, news))
-        open(os.path.join(SITE, "ballot", "index.html"), "w").write('<!doctype html><meta http-equiv="refresh" content="0; url=../elections/"><a href="../elections/">Elections</a>')
+        os.makedirs(os.path.join(SITE, "ballot"), exist_ok=True)
+        open(os.path.join(SITE, "ballot", "index.html"), "w").write(ballot_page(countries, counts, now))
     log("subjects: " + ", ".join(f"{t} {n}" for t, n in sorted(counts.items(), key=lambda x: -x[1])))
     open(os.path.join(SITE, "index.html"), "w").write(home(countries, pages, fin, now, by_topic, counts))
     json.dump({"updated": now, "languages": LANGS, "countries": {cc: {"name": c["name"], "region": c["region"], "flag": c["flag"], "n": pages.get(cc, 0)} for cc, c in countries.items()}},

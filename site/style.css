@@ -111,3 +111,7 @@ footer { border-top: 1px solid var(--line); color: var(--ivory-3); font-size: 13
 .tbl { margin: 14px 0 26px } .tbl summary { cursor: pointer; color: var(--brass); font-size: 14px; letter-spacing: .06em } .tbl table { margin-top: 12px } .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 7px; vertical-align: middle }
 .sub2 { font: 500 22px/1.1 var(--serif); margin: 24px 0 10px } .lead { color: var(--ivory-2); margin: 0 0 8px } .notable { color: var(--ivory-2); margin: 0 0 12px; padding-left: 20px } .notable li { margin: 4px 0 }
 @media (max-width: 860px) { .strip.four { grid-template-columns: 1fr 1fr } .two-maps { grid-template-columns: 1fr } }
+
+/* v2.7 (9/13): Elections page; the chip on Politics is a link */
+.filters a.go { margin-left: auto; color: var(--brass); border-color: var(--brass) }
+.ind .stories.wide { padding-bottom: 10px }
