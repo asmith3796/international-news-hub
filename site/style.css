@@ -97,3 +97,5 @@ footer { border-top: 1px solid var(--line); color: var(--ivory-3); font-size: 13
 .strip.two { grid-template-columns: 1fr 1fr } .inst .v.small { font-size: 22px } .ind .d { color: var(--ivory-3); font-size: 12.5px } .ind td .d { display: inline }
 .filters a.kw { margin-left: auto; color: var(--brass) } .bc { margin: -14px 0 30px }
 @media (max-width: 860px) { .strip.two { grid-template-columns: 1fr } }
+
+.ind.ballot td { white-space: normal; vertical-align: top } .ind.ballot td:first-child { white-space: nowrap } .ind.ballot table { table-layout: fixed } .ind.ballot th:nth-child(1) { width: 16% } .ind.ballot th:nth-child(2) { width: 20% } .ind.ballot th:nth-child(3) { width: 22% } .ind.ballot th:nth-child(5) { width: 18% }

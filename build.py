@@ -189,7 +189,7 @@ def ballot(countries, depth):
                  f'<td>{esc(l.get("type", ""))}<br><span class="d">{esc(l.get("date", ""))}</span></td><td>{esc(l.get("winner", ""))}</td><td>{esc(l.get("result", ""))} {src}</td>'
                  f'<td>{esc(n.get("type", ""))}<br><span class="d">{esc(n.get("date", ""))}</span></td></tr>')
     checked = ELECT.get("_checked", "")
-    return ('<section class="ind"><h2>Ballot<small>last vote, next vote</small></h2><table><thead><tr><th>Country</th><th>Last national election</th><th>Winner</th><th>Result</th><th>Next</th></tr></thead>'
+    return ('<section class="ind ballot"><h2>Ballot<small>last vote, next vote</small></h2><table><thead><tr><th>Country</th><th>Last national election</th><th>Winner</th><th>Result</th><th>Next</th></tr></thead>'
             f'<tbody>{rows}</tbody></table><p class="src">From each country\'s electoral authority or, where marked, Wikipedia (CC BY-SA), checked {esc(checked)}. Figures are copied from the source on the row, never extracted from news stories.</p></section>')
 def ballot_card(cc):
     e = ELECT.get(cc)
