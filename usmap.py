@@ -13,14 +13,32 @@ def ring(arcs):
     for i in arcs:
         p = arc(i); pts += p[1:] if pts else p
     return pts
+import math
+def project(code, lon, lat):
+    """The file is longitude/latitude. Lower 48: a simple conic-like fit (equirectangular with the cosine at 38N) into a 960x600 box;
+    Alaska and Hawaii scaled into insets at the bottom left, the Albers USA convention."""
+    if code == "AK":
+        if lon > 0: lon -= 360
+        x = (lon + 170) / 40 * 200 + 20; y = 600 - ((lat - 51) / 21 * 150 + 20) - 20
+        return x, y
+    if code == "HI":
+        x = (lon + 161) / 7 * 90 + 270; y = 600 - ((lat - 18.5) / 4.5 * 60 + 20) - 20
+        return x, y
+    k = math.cos(math.radians(38))
+    x = (lon + 125) * k / ((-66 + 125) * k) * 900 + 30; y = (50 - lat) / 26 * 480 + 20
+    return x, y
 out = {}
 for g in topo["objects"]["states"]["geometries"]:
     code = FIPS.get(str(g["id"]).zfill(2))
-    if not code: continue
+    if not code or code == "DC": continue
     polys = [g["arcs"]] if g["type"] == "Polygon" else g["arcs"]
     d = ""
     for poly in polys:
         for arcs in poly:
-            r = ring(arcs); d += "M" + " L".join(f"{x:.1f} {y:.1f}" for x, y in r[::2] or r) + " Z "
-    out[code] = d.strip()
+            r = ring(arcs)
+            if len(r) < 8: continue
+            pts = [project(code, lon, lat) for lon, lat in (r[::2] if len(r) > 40 else r)]
+            if code == "AK" and any(x < 0 or x > 300 for x, _ in pts): continue          # far Aleutians off the inset
+            d += "M" + " L".join(f"{x:.1f} {y:.1f}" for x, y in pts) + " Z "
+    if d: out[code] = d.strip()
 json.dump(out, open(OUT, "w")); print(len(out), "states;", os.path.getsize(OUT), "bytes")
