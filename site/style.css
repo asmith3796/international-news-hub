@@ -92,3 +92,8 @@ footer { border-top: 1px solid var(--line); color: var(--ivory-3); font-size: 13
 .spark { vertical-align: middle; margin-left: 8px; opacity: .9 } .ribbon .spark { margin-left: 10px }
 .inst .sp { display: flex; align-items: center; gap: 8px; margin-top: 8px } .inst .sp i { font-style: normal; font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--ivory-3) }
 .ind td .spark { margin-left: 8px }
+
+/* v2.5 (9/13): the ballot record */
+.strip.two { grid-template-columns: 1fr 1fr } .inst .v.small { font-size: 22px } .ind .d { color: var(--ivory-3); font-size: 12.5px } .ind td .d { display: inline }
+.filters a.kw { margin-left: auto; color: var(--brass) } .bc { margin: -14px 0 30px }
+@media (max-width: 860px) { .strip.two { grid-template-columns: 1fr } }

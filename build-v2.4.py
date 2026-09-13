@@ -148,15 +148,14 @@ def art(cc, c, topic, depth):
 def card(s, cc, c, now, depth, show_country=False):
     t = s["tr"].get("en") or {}; topic = group_of(s.get("topic"))
     where = f'<a class="cc" href="{"../" * depth}c/{cc}/">{c["flag"]} {esc(c["name"])}</a> · ' if show_country else ""
-    return (f'<article class="story" data-region="{esc(c["region"])}"{" data-el=1" if is_election(s) else ""}>{art(cc, c, topic, depth)}<div class="body"><h3><a href="{esc(s["link"])}" target="_blank" rel="noopener">{esc(t.get("title") or s["title"])}</a></h3>'
+    return (f'<article class="story" data-region="{esc(c["region"])}">{art(cc, c, topic, depth)}<div class="body"><h3><a href="{esc(s["link"])}" target="_blank" rel="noopener">{esc(t.get("title") or s["title"])}</a></h3>'
             + (f'<p>{esc(t["summary"])}</p>' if t.get("summary") else "")
             + f'<div class="src">{where}<a class="tp" href="{"../" * depth}t/{topic}/">{esc(GROUPS[topic])}</a> · Source: {esc(s["outlet"])} · <a href="{esc(s["link"])}" target="_blank" rel="noopener">read the original</a>' + (f' · {rel(s["time"], now)}' if s.get("dated") else "") + '</div></div></article>')
 FILTER_JS = ('<script>(function(){var b=document.querySelectorAll(".filters a");b.forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();'
-             'b.forEach(function(x){x.classList.remove("on")});a.classList.add("on");var r=a.getAttribute("data-r"),k=a.getAttribute("data-k");'
-             'document.querySelectorAll("[data-region]").forEach(function(el){var ok=k?(el.tagName==="TR"||el.hasAttribute("data-el")):(r==="World"||el.getAttribute("data-region")===r);el.style.display=ok?"":"none"})})})})();</script>')
-def filters(extra=None):
-    return ('<nav class="filters"><a href="#" data-r="World" class="on">World</a>' + "".join(f'<a href="#" data-r="{esc(r)}">{esc(r)}</a>' for r in REGIONS)
-            + "".join(f'<a href="#" data-k="{k}" class="kw">{esc(label)}</a>' for label, k in (extra or [])) + '</nav>')
+             'b.forEach(function(x){x.classList.remove("on")});a.classList.add("on");var r=a.getAttribute("data-r");'
+             'document.querySelectorAll("[data-region]").forEach(function(el){el.style.display=(r==="World"||el.getAttribute("data-region")===r)?"":"none"})})})})();</script>')
+def filters():
+    return '<nav class="filters"><a href="#" data-r="World" class="on">World</a>' + "".join(f'<a href="#" data-r="{esc(r)}">{esc(r)}</a>' for r in REGIONS) + '</nav>'
 def indicators(countries, fin):
     """Economic indicators for every country, from the figures already fetched daily (finance.json); rows filter by region with the stories."""
     rows = ""
@@ -173,39 +172,13 @@ def indicators(countries, fin):
                  f'<td>{pct(pr["rate"], sign=False) if pr else "—"}</td><td>{pct(inf["value"], sign=False) if inf else "—"}</td><td>{pct(gr["value"]) if gr else "—"}</td></tr>')
     return ('<section class="ind"><h2>Indicators<small>today, by country</small></h2><table><thead><tr><th>Country</th><th>Currency per USD · 1 day</th><th>Index · day</th><th>Policy rate</th><th>Inflation</th><th>GDP growth</th></tr></thead>'
             f'<tbody>{rows}</tbody></table><p class="src">Currency: open exchange-rate feed, daily. Index: last close and day change. Rate: the central bank\'s last decision. Inflation and growth: World Bank, latest year.</p></section>')
-ELECT = json.load(open(os.path.join(ROOT, "elections.json"))) if os.path.exists(os.path.join(ROOT, "elections.json")) else {}
-EL_WORDS = re.compile(r"\b(election|elections|electoral|vote|votes|voters|voting|ballot|referendum|candidate|candidates|runoff|polls)\b", re.I)
-def is_election(s):
-    t = s["tr"].get("en") or {}; return bool(EL_WORDS.search((t.get("title") or s["title"]) + " " + (t.get("summary") or "")))
-def ballot(countries, depth):
-    """Standing election record per country from elections.json (sourced by hand, verified once each; the source is on the row)."""
-    rows = ""
-    for cc, c in countries.items():
-        e = ELECT.get(cc)
-        if not e: continue
-        l, n = e.get("last") or {}, e.get("next") or {}
-        src = f'<a href="{esc(l["source"])}" target="_blank" rel="noopener">source</a>' if l.get("source") else ""
-        rows += (f'<tr data-region="{esc(c["region"])}"><td><a href="{"../" * depth}c/{cc}/">{c["flag"]} {esc(c["name"])}</a></td>'
-                 f'<td>{esc(l.get("type", ""))}<br><span class="d">{esc(l.get("date", ""))}</span></td><td>{esc(l.get("winner", ""))}</td><td>{esc(l.get("result", ""))} {src}</td>'
-                 f'<td>{esc(n.get("type", ""))}<br><span class="d">{esc(n.get("date", ""))}</span></td></tr>')
-    checked = ELECT.get("_checked", "")
-    return ('<section class="ind"><h2>Ballot<small>last vote, next vote</small></h2><table><thead><tr><th>Country</th><th>Last national election</th><th>Winner</th><th>Result</th><th>Next</th></tr></thead>'
-            f'<tbody>{rows}</tbody></table><p class="src">From each country\'s electoral authority or, where marked, Wikipedia (CC BY-SA), checked {esc(checked)}. Figures are copied from the source on the row, never extracted from news stories.</p></section>')
-def ballot_card(cc):
-    e = ELECT.get(cc)
-    if not e: return ""
-    l, n = e.get("last") or {}, e.get("next") or {}
-    return (f'<section class="ind bc"><h2>Ballot<small>last vote, next vote</small></h2><div class="strip two"><div class="inst"><div class="k">Last: {esc(l.get("type", ""))} · {esc(l.get("date", ""))}</div><div class="v small">{esc(l.get("winner", ""))}</div><div class="d">{esc(l.get("result", ""))}' + (f' · <a href="{esc(l["source"])}" target="_blank" rel="noopener">source</a>' if l.get("source") else "") + '</div></div>'
-            f'<div class="inst"><div class="k">Next: {esc(n.get("type", ""))}</div><div class="v small">{esc(n.get("date", ""))}</div><div class="d">{esc(e.get("note", ""))}</div></div></div></section>')
-
 def topic_page(topic, items, countries, counts, now, fin=None):
     name = GROUPS[topic]
     h = head(f'{name} · International News Hub', f'{name}: the day\'s {name.lower()} stories from {len({cc for cc, _ in items})} countries\' own press, summarized.', 2)
     h += topics_bar(counts, 2, topic)
     h += f'<section class="thero"><h1>{esc(name)}</h1><div class="sub">{len(items)} stories from {len({cc for cc, _ in items})} countries · updated {rel(now - 60, now)}</div></section>'
-    h += filters(extra=[("Elections", "el")] if topic == "politics" else None)
+    h += filters()
     if topic == "economy" and fin: h += indicators(countries, fin)
-    if topic == "politics" and ELECT: h += ballot(countries, 2)
     h += '<section class="stories wide">' + "".join(card(s, cc, countries[cc], now, 2, show_country=True) for cc, s in items) + '</section>'
     return h + FILTER_JS + foot(2)
 def topics_index(by_topic, countries, counts, now):
@@ -281,7 +254,6 @@ def country_page(cc, c, stories, f, now, counts=None):
             ("Inflation", pct(inf["value"], sign=False) if inf else "—", f'{inf["year"]}, World Bank' if inf else ""),
             ("GDP growth", pct(gr["value"], sign=True) if gr else "—", f'{gr["year"]}, World Bank' if gr else "")]
     h += '<div class="strip">' + "".join(f'<div class="inst"><div class="k">{esc(k)}</div><div class="v">{v}</div><div class="d">{d}</div></div>' for k, v, d in inst) + '</div>'
-    h += ballot_card(cc)
     gen = [s for s in stories if s["kind"] != "business"]; biz = [s for s in stories if s["kind"] == "business"]
     h += '<div class="cols"><section class="stories"><h2>Today<small>from the national press</small></h2>' + "".join(card(s, cc, c, now, 2) for s in gen) + '</section>'
     h += '<aside class="side"><section class="stories"><h2>Markets<small>business press</small></h2>' + ("".join(card(s, cc, c, now, 2) for s in biz) or '<p class="src">No business-desk stories in this update.</p>') + '</section></aside></div>'
