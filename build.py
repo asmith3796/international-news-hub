@@ -152,7 +152,7 @@ def card(s, cc, c, now, depth, show_country=False):
     return (f'<article class="story" data-region="{esc(c["region"])}"{" data-el=1" if is_election(s) else ""}>{art(cc, c, topic, depth)}<div class="body"><h3><a href="{esc(s["link"])}" target="_blank" rel="noopener">{esc(t.get("title") or s["title"])}</a></h3>'
             + (f'<p>{esc(t["summary"])}</p>' if t.get("summary") else "")
             + f'<div class="src">{where}<a class="tp" href="{"../" * depth}t/{topic}/">{esc(GROUPS[topic])}</a> · Source: {esc(s["outlet"])} · <a href="{esc(s["link"])}" target="_blank" rel="noopener">read the original</a>' + (f' · {rel(s["time"], now)}' if s.get("dated") else "") + '</div></div></article>')
-FILTER_JS = ('<script>(function(){var b=document.querySelectorAll(".filters a");b.forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();'
+FILTER_JS = ('<script>(function(){var b=document.querySelectorAll(".filters a:not(.go)");b.forEach(function(a){a.addEventListener("click",function(e){e.preventDefault();'
              'b.forEach(function(x){x.classList.remove("on")});a.classList.add("on");var r=a.getAttribute("data-r"),k=a.getAttribute("data-k");'
              'document.querySelectorAll("[data-region]").forEach(function(el){var ok=k?(el.tagName==="TR"||el.hasAttribute("data-el")):(r==="World"||el.getAttribute("data-region")===r);el.style.display=ok?"":"none"})})})})();</script>')
 def filters(link=None):
